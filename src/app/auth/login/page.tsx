@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { MadaButton, MadaInput, MadaLabel } from "@/app/lib/components";
 import { useLogin } from "./hooks/useLogin";
 
@@ -32,6 +33,12 @@ export default function LoginPage() {
         </div>
 
         <MadaButton className="w-full" onClick={handleSubmit}>Login</MadaButton>
+        <p className="text-center text-sm text-gray-500">
+          J'ai pas encore un compte?{" "}
+          <Link href="/auth/signup" className="text-blue-500 hover:underline">
+            Créer un compte
+          </Link>
+        </p>
       </div>
     </div>
   );

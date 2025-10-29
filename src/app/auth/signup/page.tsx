@@ -71,7 +71,7 @@ export default function SignupPage() {
         </MadaButton>
 
         <p className="text-center text-sm text-gray-500">
-          Already have an account?{" "}
+          J'ai déjà un compte?{" "}
           <Link href="/auth/login" className="text-blue-500 hover:underline">
             Login
           </Link>
