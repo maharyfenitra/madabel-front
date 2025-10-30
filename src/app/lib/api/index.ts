@@ -4,3 +4,4 @@ export * from "./useGenericMutation";
 export * from "./useGenericQuery";
 export * from "./useAccessToken";
 export * from "./useRefreshToken";
+export * from "./utils";
