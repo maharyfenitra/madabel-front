@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+:root {
+  --font-body: "Helvetica Neue LT Pro Ext", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Helony", "Helvetica Neue LT Pro Ext", "Helvetica Neue", Arial, sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -119,4 +124,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* Exemple : appliquer la police des titres */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }
