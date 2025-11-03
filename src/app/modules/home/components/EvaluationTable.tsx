@@ -49,7 +49,7 @@ export const EvaluationTable = () => {
         <CardTitle className="text-xl font-semibold text-gray-800">
           Configuration des évaluations
         </CardTitle>
-        <Button onClick={handleCreate}>+ Créer une évaluation</Button>
+        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={handleCreate}>+ Créer une évaluation</Button>
       </CardHeader>
 
       {/* ✅ Séparateur pour cohérence visuelle */}
@@ -80,11 +80,11 @@ export const EvaluationTable = () => {
                   <span
                     className={`px-2 py-1 rounded-full text-sm font-medium ${
                       evalItem.isCompleted
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-yellow-600"
                     }`}
                   >
-                    {evalItem.isCompleted ? "Oui" : "Non"}
+                    {evalItem.isCompleted ? "Y" : "N"}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -100,7 +100,7 @@ export const EvaluationTable = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
-                    variant="destructive"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black"
                     size="sm"
                     onClick={() => handleCancel(evalItem.id)}
                   >

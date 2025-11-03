@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +14,21 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useHeader } from "../hooks/useHeader";
 
 export const Header = () => {
-    const {navItems, menuOpen, setMenuOpen} = useHeader()
-  
+  const { navItems, menuOpen, setMenuOpen } = useHeader();
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-        <div className="text-xl font-bold">Madabel</div>
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <Image
+            src="/Logo-couleurs-Madabel.webp"
+            alt="Madabel Logo"
+            width={120}   // 🔧 ajuste selon la taille souhaitée
+            height={40}
+            priority
+          />
+        </Link>
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex space-x-4">
