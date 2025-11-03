@@ -19,14 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
+import { MadaButton } from "@/app/lib/components"
 
-type Evaluation = {
-  id: string
-  createdAt: string
-  deadline: string
-  completedAt?: string
-  isCompleted: boolean
-}
+import { formatDate } from "@/app/lib/utils"
 
 import { useEvaluationTable } from "../hooks/useEvaluationTable"
 
@@ -49,7 +44,7 @@ export const EvaluationTable = () => {
         <CardTitle className="text-xl font-semibold text-gray-800">
           Configuration des évaluations
         </CardTitle>
-        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={handleCreate}>+ Créer une évaluation</Button>
+        <MadaButton className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={handleCreate}>+ Créer une évaluation</MadaButton>
       </CardHeader>
 
       {/* ✅ Séparateur pour cohérence visuelle */}
@@ -73,9 +68,9 @@ export const EvaluationTable = () => {
             {evaluations?.map((evalItem: any) => (
               <TableRow key={evalItem.id}>
                 <TableCell className="font-medium">{evalItem.ref}</TableCell>
-                <TableCell>{evalItem.createdAt}</TableCell>
-                <TableCell>{evalItem.deadline}</TableCell>
-                <TableCell>{evalItem.completedAt || "-"}</TableCell>
+                <TableCell>{formatDate(evalItem.createdAt)}</TableCell>
+                <TableCell>{formatDate(evalItem.deadline)}</TableCell>
+                <TableCell>{formatDate(evalItem.completedAt)}</TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 rounded-full text-sm font-medium ${

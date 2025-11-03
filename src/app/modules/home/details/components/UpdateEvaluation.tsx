@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useUpdateEvaluation } from "../hooks/useUpdateEvaluation"
 import { ParticipantList } from "./ParticipantList"
+import { MadaButton } from "@/app/lib/components"
 
 export function UpdateEvaluation() {
   const router = useRouter()
@@ -25,7 +26,7 @@ const { handleSubmit, handleChange, formData } = useUpdateEvaluation()
       <Card className="shadow-lg rounded-2xl border border-gray-200">
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-gray-800">
-            Créer une nouvelle évaluation
+            Mettre à jour évaluation
           </CardTitle>
         </CardHeader>
 
@@ -100,7 +101,7 @@ const { handleSubmit, handleChange, formData } = useUpdateEvaluation()
             >
               Annuler
             </Button>
-            <Button type="submit">Créer l’évaluation</Button>
+            <MadaButton type="submit" className="bg-yellow-500 text-black">Enregister</MadaButton>
           </CardFooter>
         </form>
         <ParticipantList/>
