@@ -45,4 +45,34 @@ export type Post = {
 export type ModuleTypeMap = {
   profiles: Profile;
   posts: Post;
+  quizzes: Quiz;
+  questions: Question;
+};
+
+export type Option = {
+  id: number;
+  text: string;
+  value?: number | null;
+  isKey?: boolean | null;
+};
+
+export type Question = {
+  id: number;
+  quizId: number;
+  text: string;
+  type: string;
+  order: number;
+  weight?: number | null;
+  language?: string | null;
+  options: Option[];
+};
+
+export type Quiz = {
+  id: number;
+  title: string;
+  description?: string | null;
+  isActive: boolean;
+  questions: Question[];
+  createdAt: string;
+  updatedAt: string;
 };

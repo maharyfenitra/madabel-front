@@ -20,6 +20,7 @@ export const useHeader = () => {
   const navItems = [
     { label: "Home", href: "/modules/home" },
     { label: "Utilisateurs", href: "/modules/users" },
+    { label: "Quizzes", href: "/modules/quizzes" },
     { label: "Profile", href: "/profile" },
     { label: "Se déconnecter", href: "/auth/logout" },
   ];
