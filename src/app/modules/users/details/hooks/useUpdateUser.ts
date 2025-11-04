@@ -25,7 +25,7 @@ export const useUpdateUser = () => {
   });
 
   // fetch user
-  const { data: user } = useGenericQuery(
+  const { data: user, isLoading } = useGenericQuery(
     (data) => formatDataFromQuery(data),
     `/users/${params?.id}`,
     `users-${params?.id}`
@@ -115,6 +115,7 @@ export const useUpdateUser = () => {
     handleSubmit,
     user,
     setFormData,
+    isLoading,
   };
 };
 

@@ -1,11 +1,26 @@
 import { useEffect, useState } from "react";
 import { useAccessToken, useRefreshToken } from "../../lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { 
+  Home, 
+  Users, 
+  FileQuestion, 
+  User, 
+  LogOut 
+} from "lucide-react";
+
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  isLogout?: boolean;
+};
 
 export const useHeader = () => {
   const { getAccessToken } = useAccessToken();
   const { getRefreshToken } = useRefreshToken();
   const router = useRouter();
+  const pathname = usePathname();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -17,12 +32,20 @@ export const useHeader = () => {
     }
   }, []);
 
-  const navItems = [
-    { label: "Home", href: "/modules/home" },
-    { label: "Utilisateurs", href: "/modules/users" },
-    { label: "Quizzes", href: "/modules/quizzes" },
-    { label: "Profile", href: "/profile" },
-    { label: "Se déconnecter", href: "/auth/logout" },
+  const navItems: NavItem[] = [
+    { label: "Home", href: "/modules/home", icon: Home },
+    { label: "Utilisateurs", href: "/modules/users", icon: Users },
+    { label: "Quizzes", href: "/modules/quizzes", icon: FileQuestion },
+    { label: "Profile", href: "/profile", icon: User },
+    { label: "Se déconnecter", href: "/auth/logout", icon: LogOut, isLogout: true },
   ];
-  return { navItems, menuOpen, setMenuOpen };
+
+  const isActiveRoute = (href: string) => {
+    if (href === "/modules/home") {
+      return pathname === "/modules/home" || pathname === "/";
+    }
+    return pathname?.startsWith(href);
+  };
+
+  return { navItems, menuOpen, setMenuOpen, isActiveRoute, pathname };
 };
