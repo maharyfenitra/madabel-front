@@ -1,4 +1,3 @@
-// app/components/EvaluatorsTable.tsx
 "use client"
 
 import { useRouter } from "next/navigation"
@@ -20,11 +19,6 @@ import {
 } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { MadaButton } from "@/app/lib/components"
-
-import { formatDate } from "@/app/lib/utils"
-
-import { useEvaluationTable } from "../hooks/useEvaluationTable"
-import { useState } from "react"
 import {
   Pagination,
   PaginationContent,
@@ -34,94 +28,87 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination"
 
-export const EvaluationTable = () => {
-  const router = useRouter()
+import { formatDate } from "@/app/lib/utils"
 
+import { useUserTable } from "../hooks/useUserTable"
+import { toast } from "sonner"
+import { useState } from "react"
+
+export const UserTable = () => {
+  const router = useRouter()
   const [page, setPage] = useState<number>(1)
   const [limit] = useState<number>(10)
 
-  const {data} = useEvaluationTable(page, limit)
-  const evaluations = data?.evaluations ?? []
+  const { data, deleteUser, refetch } = useUserTable(page, limit)
+  const users = data?.users ?? []
   const meta = data?.meta
 
-  const handleCancel = (id: string) => {
-    console.log("Évaluation annulée:", id)
+  const handleDelete = async (id: string) => {
+    const ok = window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")
+    if (!ok) return
+
+    try {
+      await deleteUser(id)
+      toast.success("Utilisateur supprimé")
+      refetch()
+    } catch (error: any) {
+      console.error("Erreur suppression utilisateur:", error)
+      toast("Impossible de supprimer l'utilisateur", {
+        description: error?.message || String(error),
+      })
+    }
   }
 
   const handleCreate = () => {
-    router.push("/modules/home/details")
+    router.push("/modules/users/details/")
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/modules/users/details/${id}`)
   }
 
   return (
     <Card className="shadow-lg rounded-2xl border border-gray-200">
-      {/* ✅ En-tête uniforme */}
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl font-semibold text-gray-800">
-          Configuration des évaluations
+          Utilisateurs
         </CardTitle>
-        <MadaButton className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={handleCreate}>+ Créer une évaluation</MadaButton>
+        <MadaButton className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={handleCreate}>+ Ajouter</MadaButton>
       </CardHeader>
 
-      {/* ✅ Séparateur pour cohérence visuelle */}
       <Separator />
 
       <CardContent>
         <Table>
-          <TableCaption>Liste des évaluations en cours</TableCaption>
+          <TableCaption>Liste des utilisateurs</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>Réf</TableHead>
-              <TableHead>Date de création</TableHead>
-              <TableHead>Date limite de réalisation</TableHead>
-              <TableHead>Date d’achèvement</TableHead>
-              <TableHead>Test achevé</TableHead>
-              <TableHead>Rôles</TableHead>
+              <TableHead>Nom</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Rôle</TableHead>
+              <TableHead>Date création</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {evaluations?.map((evalItem: any) => (
-              <TableRow key={evalItem.id}>
-                <TableCell className="font-medium">{evalItem.ref}</TableCell>
-                <TableCell>{formatDate(evalItem.createdAt)}</TableCell>
-                <TableCell>{formatDate(evalItem.deadline)}</TableCell>
-                <TableCell>{formatDate(evalItem.completedAt)}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-medium ${
-                      evalItem.isCompleted
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-yellow-600"
-                    }`}
-                  >
-                    {evalItem.isCompleted ? "Y" : "N"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="link"
-                    
-                    onClick={() =>
-                      router.push(`/modules/home/details/${evalItem.id}`)
-                    }
-                  >
-                    DÉFINIR ÉVALUATEURS
-                  </Button>
-                </TableCell>
+            {users?.map((user: any) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">{user.fullName ?? user.name ?? "—"}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role ?? "—"}</TableCell>
+                <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black"
-                    size="sm"
-                    onClick={() => handleCancel(evalItem.id)}
-                  >
-                    Annuler
-                  </Button>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button variant="link" onClick={() => handleEdit(user.id)}>Modifier</Button>
+                    <Button className="bg-red-500 hover:bg-red-600 text-white" size="sm" onClick={() => handleDelete(user.id)}>Supprimer</Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
+        {/* Pagination */}
         {meta && meta.totalPages > 1 && (
           <div className="mt-4">
             <Pagination>
@@ -159,3 +146,5 @@ export const EvaluationTable = () => {
     </Card>
   )
 }
+
+export default UserTable

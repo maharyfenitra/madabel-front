@@ -7,6 +7,7 @@ export const useAddParticipantDialog = (evaluationId: number) => {
     name: "",
     email: "",
     phone: "",
+    post: "",
     role: "EVALUATOR",
   });
 
