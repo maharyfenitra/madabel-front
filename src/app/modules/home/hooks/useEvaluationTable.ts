@@ -36,9 +36,8 @@ type UseEvaluationTableResult = {
 }
 
 export const useEvaluationTable = (page = 1, limit = 10) => {
-    const { data, refetch } = useGenericQuery((raw) => {
+    const { data, refetch, isLoading } = useGenericQuery((raw) => {
         const formatted = formatDataFromQuery(raw)
-
         return formatted as typeof formatted & UseEvaluationTableResult
     }, "/evaluations/", "evaluations", { page, limit })
 
@@ -47,7 +46,10 @@ export const useEvaluationTable = (page = 1, limit = 10) => {
         refetch()
     }, [page, limit, refetch])
 
-    return { data: data as UseEvaluationTableResult | undefined }
+    return { 
+        data: data as UseEvaluationTableResult | undefined, 
+        isLoading 
+    }
 }
 
 export default useEvaluationTable

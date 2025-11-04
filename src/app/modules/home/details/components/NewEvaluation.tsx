@@ -1,7 +1,6 @@
-// app/evaluations/nouvelle/page.tsx
 "use client"
 
-import { ChangeEvent, ChangeEventHandler, useState } from "react"
+import { ChangeEvent } from "react"
 import { useRouter } from "next/navigation"
 import {
   Card,
@@ -9,100 +8,115 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { MadaButton, MadaInput, MadaLabel } from "@/app/lib/components"
 import { useNewEvaluation } from "../hooks/useNewEvaluation"
+import { FileText, Calendar, X, Save } from "lucide-react"
 
 export function NewEvaluation() {
   const router = useRouter()
-const { handleSubmit, handleChange, formData } = useNewEvaluation()
+  const { handleSubmit, handleChange, formData } = useNewEvaluation()
+  
   return (
-    <div>
-      <Card className="shadow-lg rounded-2xl border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold text-gray-800">
-            Créer une nouvelle évaluation
-          </CardTitle>
-        </CardHeader>
+    <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pb-4">
+        <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <FileText className="w-6 h-6 text-yellow-500" />
+          Créer une nouvelle évaluation
+        </CardTitle>
+        <CardDescription className="mt-1.5 text-gray-600 dark:text-gray-400">
+          Remplissez les informations pour créer une nouvelle évaluation
+        </CardDescription>
+      </CardHeader>
 
-        <Separator />
+      <Separator />
 
-        <form onSubmit={handleSubmit}>
-          <CardContent className="pt-6">
-            {/* ✅ Grille à 2 colonnes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="ref" className="mb-2">
-                  Référence
-                </Label>
-                <Input
-                  id="ref"
-                  name="ref"
-                  placeholder="Ex: EVA-2025-01"
-                  value={formData.ref}
-                  onChange={(e: ChangeEvent<HTMLInputElement>  ) => handleChange("ref", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="createdAt" className="mb-2">
-                  Date de création
-                </Label>
-                <Input
-                  id="createdAt"
-                  name="createdAt"
-                  type="date"
-                  value={formData.createdAt}
-                  onChange={(e: ChangeEvent<HTMLInputElement>  ) => handleChange("createdAt", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="deadline" className="mb-2">
-                  Date limite de réalisation
-                </Label>
-                <Input
-                  id="deadline"
-                  name="deadline"
-                  type="date"
-                  value={formData.deadline}
-                  onChange={(e: ChangeEvent<HTMLInputElement>  ) => handleChange("deadline", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="completedAt" className="mb-2">
-                  Date d’achèvement
-                </Label>
-                <Input
-                  id="completedAt"
-                  name="completedAt"
-                  type="date"
-                  value={formData.completedAt}
-                  onChange={(e: ChangeEvent<HTMLInputElement>  ) => handleChange("completedAt", e.target.value)}
-                />
-              </div>
+      <form onSubmit={handleSubmit}>
+        <CardContent className="pt-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <MadaLabel htmlFor="ref" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Référence
+              </MadaLabel>
+              <MadaInput
+                id="ref"
+                name="ref"
+                placeholder="Ex: EVA-2025-01"
+                value={formData.ref}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("ref", e.target.value)}
+                required
+              />
             </div>
-          </CardContent>
 
-          <CardFooter className="flex justify-end space-x-3 mt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              Annuler
-            </Button>
-            <Button className="bg-yellow-500 hover:bg-yellow-600 text-black" type="submit">Créer l’évaluation</Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+            <div className="space-y-2">
+              <MadaLabel htmlFor="createdAt" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Date de création
+              </MadaLabel>
+              <MadaInput
+                id="createdAt"
+                name="createdAt"
+                type="date"
+                value={formData.createdAt}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("createdAt", e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <MadaLabel htmlFor="deadline" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Date limite de réalisation
+              </MadaLabel>
+              <MadaInput
+                id="deadline"
+                name="deadline"
+                type="date"
+                value={formData.deadline}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("deadline", e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <MadaLabel htmlFor="completedAt" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Date d'achèvement (optionnel)
+              </MadaLabel>
+              <MadaInput
+                id="completedAt"
+                name="completedAt"
+                type="date"
+                value={formData.completedAt}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("completedAt", e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex justify-end gap-3 pt-6 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            className="flex items-center gap-2"
+          >
+            <X className="w-4 h-4" />
+            Annuler
+          </Button>
+          <MadaButton 
+            type="submit"
+            className="bg-yellow-500 hover:bg-yellow-600 text-black shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            Créer l'évaluation
+          </MadaButton>
+        </CardFooter>
+      </form>
+    </Card>
   )
 }

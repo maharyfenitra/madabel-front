@@ -13,7 +13,7 @@ type UseUserTableResult = {
 }
 
 export const useUserTable = (page = 1, limit = 10) => {
-  const { data, refetch } = useGenericQuery((data) => {
+  const { data, refetch, isLoading } = useGenericQuery((data) => {
     
     const formatData = formatDataFromQuery(data)
 
@@ -36,7 +36,7 @@ export const useUserTable = (page = 1, limit = 10) => {
     return deleteMutate({ id: nid })
   }
 
-  return { data: data as UseUserTableResult | undefined, deleteUser, refetch }
+  return { data: data as UseUserTableResult | undefined, deleteUser, refetch, isLoading }
 }
 
 
