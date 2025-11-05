@@ -84,7 +84,7 @@ const QuizList = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Link href={`/modules/quizzes/${q.id}`}>
+                    <Link href={`/modules/quizzes/details/${q.id}`}>
                       <Button
                         variant="outline"
                         className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400"

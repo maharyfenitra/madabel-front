@@ -1,6 +1,6 @@
 "use client";
 
-import { MadaButton, MadaInput, MadaLabel } from "@/app/lib/components";
+import { AutocompleteSearch, MadaButton, MadaInput, MadaLabel } from "@/app/lib/components";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +18,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export const AddParticipantDialog = ({
   evaluationId,
+  callBack
 }: {
   evaluationId: number;
+  callBack: () => void;
 }) => {
   const { newUser, handleChange, handleSubmit } =
-    useAddParticipantDialog(evaluationId);
+    useAddParticipantDialog(evaluationId, callBack);
 
   return (
     <Dialog>
@@ -48,6 +50,13 @@ export const AddParticipantDialog = ({
 
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <MadaLabel htmlFor="name" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Cherché utilisateur
+              </MadaLabel>
+              <AutocompleteSearch />
+            </div>
             {/* Nom */}
             <div className="space-y-2">
               <MadaLabel htmlFor="name" className="flex items-center gap-2">

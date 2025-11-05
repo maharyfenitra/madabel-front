@@ -3,7 +3,6 @@ import useQuiz from '../hooks/useQuiz';
 import useQuestions from '../../questions/hooks/useQuestions';
 import QuestionForm from '../../questions/details/components/QuestionForm';
 import { useNewQuestion } from '../../questions/details/hooks/useNewQuestion';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +16,8 @@ type Props = { id: number };
 const QuizDetail = ({ id }: Props) => {
   const res: any = useQuiz(id);
   const quiz = res?.data;
-  const { data: questions = [], isLoading } = useQuestions(id);
+  const { questions = [], isLoading } = useQuestions(id);
+  console.log('Questions:', questions);
   const { createQuestion } = useNewQuestion(id as number) as any;
   const router = useRouter();
 
