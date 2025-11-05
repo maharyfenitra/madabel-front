@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Users, Mail, Phone, Trash2, Loader2, AlertCircle, User as UserIcon } from "lucide-react";
+import { Users, Mail, Phone, Trash2, Loader2, AlertCircle, User as UserIcon, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -101,7 +101,7 @@ export const ParticipantList = () => {
                 Gérez les participants (candidats et évaluateurs) de cette évaluation
               </CardDescription>
             </div>
-            <AddParticipantDialog evaluationId={Number(params?.id!)} />
+            <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchEvaluators} />
           </div>
         </CardHeader>
 
@@ -122,7 +122,7 @@ export const ParticipantList = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Ajoutez des participants à cette évaluation
               </p>
-              <AddParticipantDialog evaluationId={Number(params?.id!)} />
+              <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchEvaluators} />
             </div>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
@@ -153,6 +153,9 @@ export const ParticipantList = () => {
                     <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                       Rôle
                     </TableHead>
+                    <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
+                      Send mail
+                    </TableHead>
                     <TableHead className="text-right font-semibold text-gray-700 dark:text-gray-300">
                       Actions
                     </TableHead>
@@ -180,6 +183,17 @@ export const ParticipantList = () => {
                       </TableCell>
                       <TableCell>
                         {getRoleBadge(participant.user.role)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          className="bg-green-500 hover:bg-green-600 text-white"
+                          size="sm"
+                          
+                          onClick={() => null}
+                        >
+                          <Send className="w-4 h-4 mr-1" />
+                          Envoyer mail
+                        </Button>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

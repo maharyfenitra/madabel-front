@@ -7,9 +7,10 @@ import { toast } from "sonner";
 export const useUpdateEvaluation = () => {
   const router = useRouter();
   const params = useParams();
-  const { mutateAsync } = useGenericMutation("/evaluations/");
 
-  // 1️⃣ État initial du formulaire
+  const { mutateAsync } = useGenericMutation(`/evaluations/${params?.id}`, "PUT");
+
+  //  État initial du formulaire
   const [formData, setFormData] = useState<EvaluationParams>({
     ref: "",
     createdAt: "",
@@ -17,18 +18,27 @@ export const useUpdateEvaluation = () => {
     completedAt: "",
   });
 
-  // 2️⃣ Récupération de l'évaluation depuis l'API
+  //  Récupération de l'évaluation depuis l'API
   const { data: evaluation } = useGenericQuery(
     (data) => formatDataFromQuery(data),
     `/evaluations/${params?.id}`,
     `evaluations-${params?.id}`
   );
 
-  // 3️⃣ Met à jour formData dès que evaluation change
+  //  Récupération de l'évaluation depuis l'API
+  const { data: quizzes } = useGenericQuery(
+    (data) => formatDataFromQuery(data),
+   "/quizzes/", "quizzes"
+  );
+
+  console.log("Loaded quizzes for evaluation update:", quizzes);
+
+  //  Met à jour formData dès que evaluation change
   useEffect(() => {
     if (evaluation) {
       setFormData({
         ref: evaluation?.ref ?? "",
+        quizId: evaluation?.quizId ?? evaluation?.quiz?.id ?? null,
         // ⚠️ On convertit les dates en format "YYYY-MM-DD" pour les inputs type="date"
         createdAt: evaluation.createdAt
           ? new Date(evaluation.createdAt).toISOString().split("T")[0]
@@ -55,13 +65,12 @@ export const useUpdateEvaluation = () => {
   };
 
   // ✅ Soumet la création ou la mise à jour
-  const handleCreateEvaluation = async () => {
+  const handleUpdateEvaluation = async () => {
     try {
       const data = await mutateAsync({ ...formData });
-      router.push(`/modules/home/details/${data?.id}`);
-
+     
       toast.success("Évaluation enregistrée avec succès 🎉", {
-        description: `Réf: ${data.ref || "non renseignée"}`,
+        description: `Réf: ${formData?.ref || "non renseignée"}`,
       });
     } catch (error: any) {
       console.error("Erreur lors de la création :", error);
@@ -74,21 +83,23 @@ export const useUpdateEvaluation = () => {
   // 🧾 Gère la soumission du formulaire
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleCreateEvaluation();
+    handleUpdateEvaluation();
   };
 
   return {
     formData,
     handleChange,
     handleSubmit,
-    handleCreateEvaluation,
+    handleUpdateEvaluation,
     setFormData,
+    quizzes: quizzes?.quizzes || [],
   };
 };
 
 // 🔹 Type pour le formulaire
 export type EvaluationParams = {
   ref: string;
+  quizId?: number | null;
   createdAt: string;
   deadline: string;
   completedAt: string;

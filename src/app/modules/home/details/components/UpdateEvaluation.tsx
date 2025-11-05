@@ -20,8 +20,8 @@ import Link from "next/link"
 
 export function UpdateEvaluation() {
   const router = useRouter()
-  const { handleSubmit, handleChange, formData } = useUpdateEvaluation()
-  
+  const { handleSubmit, handleChange, formData, quizzes } = useUpdateEvaluation()
+
   return (
     <div className="space-y-6">
       <Link href="/modules/home">
@@ -104,6 +104,29 @@ export function UpdateEvaluation() {
                   value={formData.completedAt}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("completedAt", e.target.value)}
                 />
+              </div>
+
+              
+              <div className="space-y-2">
+                <MadaLabel htmlFor="quizId" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Quiz associé
+                </MadaLabel>
+                <select
+                  id="quizId"
+                  name="quizId"
+                  value={formData.quizId ?? ""}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                    const val = e.target.value === "" ? null : Number(e.target.value)
+                    handleChange("quizId", val)
+                  }}
+                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                >
+                  <option value="">— Aucun —</option>
+                  {quizzes?.map?.((q: any) => (
+                    <option key={q.id} value={q.id}>{q.title}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </CardContent>

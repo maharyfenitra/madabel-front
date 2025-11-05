@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGenericMutation } from "@/app/lib/api";
 import { toast } from "sonner";
-export const useAddParticipantDialog = (evaluationId: number) => {
+export const useAddParticipantDialog = (evaluationId: number,  callBack: () => void) => {
   const { mutateAsync } = useGenericMutation("/evaluations/new/participant/");
   const [newUser, setNewUser] = useState<User>({
     name: "",
@@ -25,9 +25,12 @@ export const useAddParticipantDialog = (evaluationId: number) => {
       // Ici tu peux ajouter la logique pour ajouter l'utilisateur à ta liste
       const data = await mutateAsync({ ...newUser, evaluationId });
 
-      toast.success("Évaluation créée avec succès 🎉", {
+      toast.success("Participant avec succès 🎉", {
         description: `Réf: ${data.ref || "non renseignée"}`,
       });
+
+       callBack()
+
     } catch (error: any) {
       toast("Impossible d'ajouter le participant", {
         description: error.message,
