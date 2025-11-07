@@ -1,12 +1,13 @@
 import { useGenericMutation } from "@/app/lib/api";
 import { useState } from "react";
-import { useAccessToken, useRefreshToken } from "@/app/lib/api";
+import { useAccessToken, useRefreshToken, useCurrentUser } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 
 export const useLogin = () => {
   const { mutateAsync } = useGenericMutation("/auth/login/");
   const { setAccessToken } = useAccessToken()
   const { setRefreshToken } = useRefreshToken()
+  const { setUser } = useCurrentUser()
   const { push } = useRouter()
 
   const [loginParams, setLoginParams] = useState<LoginParams>({
@@ -26,10 +27,19 @@ export const useLogin = () => {
 
   const handleSubmit = async () => {
     const data = await mutateAsync({ ...loginParams });
+
+    console.log(data)
     
     setAccessToken(data?.accessToken)
     setRefreshToken(data?.refreshToken)
-    push("/modules/home")
+    setUser(data?.user)
+    // Redirect candidate users to their evaluations, others to home
+    const role = data?.user?.role
+    if (role === 'CANDIDAT') {
+      push('/modules/evaluations')
+    } else {
+      push('/modules/home')
+    }
   }
   return { handleChange, loginParams, handleSubmit};
 };

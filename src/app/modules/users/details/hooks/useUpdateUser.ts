@@ -25,27 +25,27 @@ export const useUpdateUser = () => {
   });
 
   // fetch user
-  const { data: user, isLoading } = useGenericQuery(
+  const { data, isLoading } = useGenericQuery(
     (data) => formatDataFromQuery(data),
     `/users/${params?.id}`,
     `users-${params?.id}`
   );
 
   useEffect(() => {
-    if (user) {
+    if (data) {
       setFormData((prev) => ({
         ...prev,
-        name: user?.name ?? "",
-        email: user?.email ?? "",
-        phone: user?.phone ?? "",
-        post: user?.post ?? "",
-        role: user?.role ?? "CANDIDAT",
+        name: data?.user?.name ?? "",
+        email: data?.user?.email ?? "",
+        phone: data?.user?.phone ?? "",
+        post: data?.user?.post ?? "",
+        role: data?.user?.role ?? "",
         // password intentionally left empty
       }));
-      console.log(user);
+      console.log(data)
       console.log("Loaded user for update:", formData);
     }
-  }, [user]);
+  }, [data]);
 
   const handleChange = <K extends keyof UserParams>(
     key: K,
@@ -113,7 +113,7 @@ export const useUpdateUser = () => {
     handleChange,
     handleFileChange,
     handleSubmit,
-    user,
+    data,
     setFormData,
     isLoading,
   };
