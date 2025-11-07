@@ -20,9 +20,9 @@ import Link from "next/link"
 export default function UpdateUser() {
   const router = useRouter()
   
-  const { formData, handleChange, handleFileChange, handleSubmit, user, isLoading } = useUpdateUser()
+  const { formData, handleChange, handleFileChange, handleSubmit, data, isLoading } = useUpdateUser()
 
-  if (isLoading || !user) {
+  if (isLoading || !data) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-yellow-500 mb-4" />

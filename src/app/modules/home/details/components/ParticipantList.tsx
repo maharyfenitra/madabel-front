@@ -188,8 +188,28 @@ export const ParticipantList = () => {
                         <Button
                           className="bg-green-500 hover:bg-green-600 text-white"
                           size="sm"
-                          
-                          onClick={() => null}
+                          onClick={async () => {
+                            try {
+                              const accessToken = getAccessToken();
+                              const res = await sendRequest(
+                                "POST",
+                                `${URL_CONFIG.uri}/evaluations/participant/${participant.id}/send-mail`,
+                                {},
+                                {
+                                  ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),
+                                }
+                              );
+
+                              if (res?.data) {
+                                toast.success("Mail envoyé avec succès");
+                              } else {
+                                toast.success("Demande d'envoi envoyée");
+                              }
+                            } catch (error: any) {
+                              console.error("Erreur envoi mail:", error);
+                              toast.error("Impossible d'envoyer le mail", { description: error?.message || String(error) });
+                            }
+                          }}
                         >
                           <Send className="w-4 h-4 mr-1" />
                           Envoyer mail
