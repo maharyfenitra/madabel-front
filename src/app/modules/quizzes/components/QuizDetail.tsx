@@ -3,6 +3,7 @@ import useQuiz from "../hooks/useQuiz";
 import useQuestions from "../../questions/hooks/useQuestions";
 import QuestionForm from "../../questions/details/components/QuestionForm";
 import { useNewQuestion } from "../../questions/details/hooks/useNewQuestion";
+import { useUpdateQuiz } from "../hooks/useUpdateQuiz";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -17,21 +18,38 @@ import {
   Plus,
   Loader2,
   ArrowLeft,
+  Edit,
+  Check,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { QuestionList } from "./QuestionList";
+import { useState } from "react";
 
 type Props = { id: number };
 
 const QuizDetail = ({ id }: Props) => {
+
   const res: any = useQuiz(id);
-  const quiz = res?.data;
+  
+  const quiz = res?.data?.quiz;
+
   const { questions = [], isLoading } = useQuestions(id);
-  console.log("Questions:", questions);
+ 
   const { createQuestion } = useNewQuestion(id as number) as any;
+
   const router = useRouter();
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const {
+    handleSave: handleSaveQuiz,
+    title,
+    setTitle,
+  } = useUpdateQuiz(quiz, () => setIsEditingTitle(false));
 
   const handleAddQuestion = async (q: any) => {
     await createQuestion(q);
@@ -62,13 +80,60 @@ const QuizDetail = ({ id }: Props) => {
         <CardHeader className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pb-4">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3 mb-2">
                 <FileQuestion className="w-8 h-8 text-yellow-500" />
-                {quiz?.title || "Questionnaire"}
-              </CardTitle>
+                {isEditingTitle ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="text-3xl font-bold border-2 border-yellow-500 focus:ring-yellow-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveQuiz();
+                        } else if (e.key === 'Escape') {
+                          setIsEditingTitle(false);
+                          setTitle(quiz?.title || "");
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleSaveQuiz}
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingTitle(false);
+                        setTitle(quiz?.title || "");
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      {quiz?.title || "Questionnaire"}
+                    </CardTitle>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setIsEditingTitle(true)}
+                      className="hover:bg-yellow-100 dark:hover:bg-yellow-900/20"
+                    >
+                      <Edit className="w-4 h-4 text-yellow-500" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               {quiz?.description && (
                 <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">
-                  {quiz.description}
+                  {quiz?.description}
                 </CardDescription>
               )}
             </div>
