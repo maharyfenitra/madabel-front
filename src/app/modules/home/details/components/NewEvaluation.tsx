@@ -53,21 +53,6 @@ export function NewEvaluation() {
             </div>
 
             <div className="space-y-2">
-              <MadaLabel htmlFor="createdAt" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Date de création
-              </MadaLabel>
-              <MadaInput
-                id="createdAt"
-                name="createdAt"
-                type="date"
-                value={formData.createdAt}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("createdAt", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
               <MadaLabel htmlFor="deadline" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Date limite de réalisation

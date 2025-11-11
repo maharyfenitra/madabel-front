@@ -52,7 +52,7 @@ export const useHeader = () => {
     const { getUser } = useCurrentUser();
     const currentUser = getUser();
 
-    if (currentUser && currentUser.role === "CANDIDAT") {
+    if (currentUser && currentUser.role === "EVALUATOR") {
       setNavItems([
         {
           label: "Mes évaluations",

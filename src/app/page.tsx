@@ -9,7 +9,7 @@ export default function Home() {
 
 	useEffect(() => {
 		const user = getUser();
-		if (user && user.role === "CANDIDAT") {
+		if (user && user.role === "EVALUATOR") {
 			// candidate => send to evaluations list
 			router.replace("/modules/evaluations");
 		} else {

@@ -12,9 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useAddParticipantDialog } from "../hooks/useAddParticipantDialog";
+import { useUserSearch, type UserSuggestion } from "../hooks/useUserSearch";
 import { Users, User, Mail, Phone, Briefcase, UserCircle, Plus, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const AddParticipantDialog = ({
   evaluationId,
@@ -25,6 +24,30 @@ export const AddParticipantDialog = ({
 }) => {
   const { newUser, handleChange, handleSubmit } =
     useAddParticipantDialog(evaluationId, callBack);
+  const { searchQuery, setSearchQuery, suggestions, suggestionsText, isLoading } = useUserSearch();
+
+  const handleUserSelect = (selectedText: string) => {
+    const selectedUser = suggestions.find(user => `${user.name} (${user.email})` === selectedText);
+    if (selectedUser) {
+      // Update the form with selected user data
+      const syntheticEvent = {
+        target: { name: 'name', value: selectedUser.name }
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(syntheticEvent);
+
+      const emailEvent = {
+        target: { name: 'email', value: selectedUser.email }
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(emailEvent);
+
+      if (selectedUser.phone) {
+        const phoneEvent = {
+          target: { name: 'phone', value: selectedUser.phone }
+        } as React.ChangeEvent<HTMLInputElement>;
+        handleChange(phoneEvent);
+      }
+    }
+  };
 
   return (
     <Dialog>
@@ -53,9 +76,18 @@ export const AddParticipantDialog = ({
             <div className="space-y-2">
               <MadaLabel htmlFor="name" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Cherché utilisateur
+                Chercher utilisateur
               </MadaLabel>
-              <AutocompleteSearch />
+              <AutocompleteSearch
+                data={suggestionsText}
+                onSelect={handleUserSelect}
+                handleChange={setSearchQuery}
+                placeholder="Tapez pour rechercher un utilisateur..."
+                className="w-full"
+              />
+              {isLoading && searchQuery.length >= 2 && (
+                <p className="text-sm text-gray-500">Recherche en cours...</p>
+              )}
             </div>
             {/* Nom */}
             <div className="space-y-2">

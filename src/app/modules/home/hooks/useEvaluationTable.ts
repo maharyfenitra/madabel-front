@@ -1,4 +1,4 @@
-import { useGenericQuery, formatDataFromQuery } from "@/app/lib/api"
+import { useGenericQuery, formatDataFromQuery, useGenericMutation } from "@/app/lib/api"
 import { useEffect } from "react"
 
 // Types matching the backend response
@@ -41,6 +41,13 @@ export const useEvaluationTable = (page = 1, limit = 10) => {
         return formatted as typeof formatted & UseEvaluationTableResult
     }, "/evaluations/", "evaluations", { page, limit })
 
+    const { mutateAsync } = useGenericMutation(`/evaluations/`, "DELETE")
+
+    const deleteEvaluation = async (id: number) => {
+        await mutateAsync({ id })
+        refetch()
+    }
+
     useEffect(() => {
         // force refetch when pagination params change
         refetch()
@@ -48,7 +55,8 @@ export const useEvaluationTable = (page = 1, limit = 10) => {
 
     return { 
         data: data as UseEvaluationTableResult | undefined, 
-        isLoading 
+        isLoading,
+        deleteEvaluation
     }
 }
 

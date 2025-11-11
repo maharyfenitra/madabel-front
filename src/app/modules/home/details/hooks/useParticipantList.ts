@@ -1,10 +1,10 @@
 import { useGenericQuery } from "@/app/lib/api"
 import { formatDataFromQuery } from "@/app/lib/api"
 export const useParticipantList = (id: number) => {
-    const { data: participantEvaluators, refetch: refetchEvaluators, isLoading } = useGenericQuery((data) => {
+    const { data: participants, refetch: refetchParticipants, isLoading } = useGenericQuery((data) => {
         const dataResponse = formatDataFromQuery(data);
         return dataResponse
-    }, `/evaluations/evaluators/${id}`, `evaluations-evaluators-${id}`)
+    }, `/evaluations/participants/${id}`, `evaluations-participants-${id}`)
 
-    return { participantEvaluators, refetchEvaluators, isLoading }
+    return { participants, refetchParticipants, isLoading }
 }
