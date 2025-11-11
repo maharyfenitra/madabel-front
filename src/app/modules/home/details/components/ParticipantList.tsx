@@ -32,7 +32,7 @@ export const ParticipantList = () => {
   const [participantToDelete, setParticipantToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { participantEvaluators, refetchEvaluators, isLoading } = useParticipantList(
+  const { participants, refetchParticipants, isLoading } = useParticipantList(
     Number(params?.id!)
   );
   
@@ -58,7 +58,7 @@ export const ParticipantList = () => {
           ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),
         }
       );
-      refetchEvaluators();
+      refetchParticipants();
       toast.success("Participant supprimé", {
         description: "Le participant a été retiré de l'évaluation",
       });
@@ -101,7 +101,7 @@ export const ParticipantList = () => {
                 Gérez les participants (candidats et évaluateurs) de cette évaluation
               </CardDescription>
             </div>
-            <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchEvaluators} />
+            <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchParticipants} />
           </div>
         </CardHeader>
 
@@ -113,7 +113,7 @@ export const ParticipantList = () => {
               <Loader2 className="w-8 h-8 animate-spin text-yellow-500 mb-4" />
               <p className="text-gray-600 dark:text-gray-400">Chargement des participants...</p>
             </div>
-          ) : !participantEvaluators || participantEvaluators.length === 0 ? (
+          ) : !participants || participants.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertCircle className="w-12 h-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -122,13 +122,13 @@ export const ParticipantList = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Ajoutez des participants à cette évaluation
               </p>
-              <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchEvaluators} />
+              <AddParticipantDialog evaluationId={Number(params?.id!)} callBack={refetchParticipants} />
             </div>
           ) : (
             <div className="overflow-x-auto -mx-6 px-6">
               <Table>
                 <TableCaption className="text-gray-600 dark:text-gray-400">
-                  {participantEvaluators.length} participant{participantEvaluators.length > 1 ? "s" : ""} au total
+                  {participants.length} participant{participants.length > 1 ? "s" : ""} au total
                 </TableCaption>
                 <TableHeader>
                   <TableRow className="bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -162,7 +162,7 @@ export const ParticipantList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {participantEvaluators.map((participant: any, index: number) => (
+                  {participants.map((participant: any, index: number) => (
                     <TableRow
                       key={index}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"

@@ -6,6 +6,9 @@ import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useCurrentUser } from '@/app/lib/api';
 
 export default function Page() {
   const params = useParams() as { quizId?: string };
@@ -16,7 +19,10 @@ export default function Page() {
   const router = useRouter();
   const [answersMap, setAnswersMap] = useState<Record<number, any>>({});
 
-  const submit = useSubmitAnswers(Number(/* placeholder participant id */ 0));
+  const { getUser } = useCurrentUser();
+  const user = getUser();
+
+  const submit = useSubmitAnswers(Number(user.id));
 
   if (isLoading) return <div>Chargement...</div>;
   if (!quiz) return <div>Quiz introuvable</div>;
@@ -48,7 +54,7 @@ export default function Page() {
       await submit.mutateAsync({ answers }, {
         onSuccess: () => {
           toast.success("Réponses envoyées");
-          router.push('/');
+          //router.push('/');
         }
       });
     } catch (err: any) {
@@ -59,6 +65,13 @@ export default function Page() {
 
   return (
     <div className="py-6">
+      <Link href="/modules/evaluations">
+        <Button variant="ghost" className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour aux évaluations
+        </Button>
+      </Link>
+
       <h1 className="text-2xl font-bold mb-4">{quiz.title}</h1>
       <p className="text-sm text-muted-foreground mb-6">{quiz.description}</p>
 

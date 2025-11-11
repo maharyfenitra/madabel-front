@@ -21,7 +21,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { MadaButton } from "@/app/lib/components"
 import { formatDate } from "@/app/lib/utils"
-import { useEvaluationTable } from "../hooks/useEvaluationTable"
+import { useEvaluationTable, type Evaluation } from "../hooks/useEvaluationTable"
 import { useState } from "react"
 import {
   Pagination,
@@ -31,6 +31,18 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
 import {
   Plus,
   FileText,
@@ -43,20 +55,18 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 export const EvaluationTable = () => {
   const router = useRouter()
   const [page, setPage] = useState<number>(1)
   const [limit] = useState<number>(10)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [evaluationToDelete, setEvaluationToDelete] = useState<Evaluation | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  const { data, isLoading } = useEvaluationTable(page, limit)
+  const { data, isLoading , deleteEvaluation} = useEvaluationTable(page, limit)
   const evaluations = data?.evaluations ?? []
   const meta = data?.meta
-
-  const handleCancel = (id: string) => {
-    console.log("Évaluation annulée:", id)
-  }
 
   const handleCreate = () => {
     router.push("/modules/home/details")
@@ -89,6 +99,26 @@ export const EvaluationTable = () => {
         En cours
       </span>
     )
+  }
+
+  const handleDelete = (evaluation: any) => {
+    setEvaluationToDelete(evaluation)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!evaluationToDelete) return
+
+    setIsDeleting(true)
+    try {
+      await deleteEvaluation(evaluationToDelete.id)
+      setDeleteDialogOpen(false)
+      setEvaluationToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -255,7 +285,7 @@ export const EvaluationTable = () => {
                             className="bg-red-500 hover:bg-red-600 text-white"
                             onClick={(e) => {
                               e.stopPropagation()
-                              handleCancel(evalItem.id)
+                              handleDelete(evalItem)
                             }}
                           >
                             <X className="w-4 h-4" />
@@ -340,6 +370,35 @@ export const EvaluationTable = () => {
           </>
         )}
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer l'évaluation "{evaluationToDelete?.ref}" ?
+              Cette action est irréversible et supprimera également tous les participants et leurs réponses associées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                "Supprimer"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

@@ -17,7 +17,7 @@ type AutocompleteSearchProps = {
   handleChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onSelect">;
 
 export function AutocompleteSearch({
   data = [],
