@@ -8,7 +8,7 @@ export const useQuestions = (quizId?: number) => {
   const { data , isLoading} = useGenericQuery((data) => {
     return formatDataFromQuery(data);
   }, `/quizzes/${quizId}/questions`, "list-of-questions")
-  console.log(data)
+  
   return { questions: data?.questions || [], isLoading}
 };
 
