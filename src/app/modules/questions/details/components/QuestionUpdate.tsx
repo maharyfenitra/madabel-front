@@ -18,6 +18,7 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     handleSave,
     text,
     type,
+    category,
     order,
     weight,
     language,
@@ -27,6 +28,7 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     newOptIsKey,
     setText,
     setType,
+    setCategory,
     setOrder,
     setWeight,
     setLanguage,
@@ -68,6 +70,23 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
         </div>
 
         <div>
+          <Label className="text-sm">Catégorie</Label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full rounded-md border px-2 py-1"
+          >
+            <option value="POSITION">Position</option>
+            <option value="PERMISSION">Permission</option>
+            <option value="PRODUCTION">Production</option>
+            <option value="DEVELOPMENT_OF_OTHERS">Développement des autres</option>
+            <option value="SUMMIT">Sommet</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div>
           <Label className="text-sm">Langue</Label>
           <select
             value={language}
@@ -78,9 +97,7 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
             <option value="en">en</option>
           </select>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-2">
         <div>
           <Label className="text-sm">Ordre</Label>
           <Input
