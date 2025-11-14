@@ -1,9 +1,10 @@
 import { useCurrentUser, useGenericMutation } from "@/app/lib/api";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useCandidateQuiz from "./useCandidateQuiz";
 import { toast } from "sonner";
 import { useSubmitAnswersTools } from "./useSubmitAnswersTools";
+import { useCandidatePreviousAnswers } from "./useCandidatePreviousAnswers";
 
 export const useSubmitAnswers = () => {
   const params = useParams() as { quizId?: string };
@@ -21,11 +22,21 @@ export const useSubmitAnswers = () => {
 
   const [answersMap, setAnswersMap] = useState<Record<number, any>>({});
 
-  const { buildAnswersPayload, validateAnswers} = useSubmitAnswersTools(quiz, answersMap)
+  const { buildAnswersPayload, validateAnswers, validateCurrentPageAnswers} = useSubmitAnswersTools(quiz, answersMap, currentPage, questionsPerPage)
 
   const { getUser } = useCurrentUser();
 
   const user = getUser();
+
+  // Charger les réponses précédentes
+  const { previousAnswers, isLoading: isLoadingPreviousAnswers } = useCandidatePreviousAnswers();
+
+  // Initialiser answersMap avec les réponses précédentes quand elles sont chargées
+  useEffect(() => {
+    if (Object.keys(previousAnswers).length > 0 && Object.keys(answersMap).length === 0) {
+      setAnswersMap(previousAnswers);
+    }
+  }, [previousAnswers, answersMap]);
 
   // Get participantId and evaluationId from URL params
   const sp = new URLSearchParams(
@@ -113,12 +124,12 @@ export const useSubmitAnswers = () => {
 
   const handleClickPrevious = async () => {
 
-     // Valider que toutes les questions ont été répondues
-      const validation = validateAnswers();
+     // Valider seulement les questions de la page actuelle avant de permettre la navigation
+      const validation = validateCurrentPageAnswers();
       if (!validation.isValid) {
         toast.error(validation.message, {
           duration: 6000, // Afficher plus longtemps pour les longs messages
-          description: `${validation.unansweredCount} question(s) non répondu(s)`,
+          description: `${validation.unansweredCount} question(s) non répondu(s) sur cette page`,
         });
         return;
       }
@@ -128,12 +139,12 @@ export const useSubmitAnswers = () => {
   };
 
   const handleClickNext = async () => {
-     // Valider que toutes les questions ont été répondues
-      const validation = validateAnswers();
+     // Valider seulement les questions de la page actuelle avant de permettre la navigation
+      const validation = validateCurrentPageAnswers();
       if (!validation.isValid) {
         toast.error(validation.message, {
           duration: 6000, // Afficher plus longtemps pour les longs messages
-          description: `${validation.unansweredCount} question(s) non répondu(s)`,
+          description: `${validation.unansweredCount} question(s) non répondu(s) sur cette page`,
         });
         return;
       }
@@ -161,6 +172,7 @@ export const useSubmitAnswers = () => {
     isSaving,
     goToPage,
     validateAnswers,
+    validateCurrentPageAnswers,
   };
 };
 
