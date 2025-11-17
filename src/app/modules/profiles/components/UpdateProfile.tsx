@@ -17,6 +17,7 @@ import useUpdateProfile from "@/app/modules/profiles/hooks/useUpdateProfile"
 import { useCurrentUser, useAccessToken } from "@/app/lib/api"
 import { User, Mail, Phone, Briefcase, Lock, UserCircle, Upload, X, Save, Edit, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { URL_CONFIG } from "@/app/lib/api/configServer"
 
 export default function UpdateProfile() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function UpdateProfile() {
   
   const { formData, handleChange, handleFileChange, handleSubmit } = useUpdateProfile()
 
-  console.log(`http://localhost:8001/avatars/${currentUser?.avatar}`)
+  console.log(`${URL_CONFIG.uri}/avatars/${currentUser.avatar}`)
 
 
   // Redirect to login if not authenticated
@@ -61,13 +62,13 @@ export default function UpdateProfile() {
             {/* Avatar display */}
             {currentUser.avatar ? (
               <div className="relative">
-                <img
-                  src={`http://localhost:8001/avatars/${currentUser.avatar}`}
-                  alt={"Photo de profil"}
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover border-4 border-yellow-500 shadow-lg"
-                />
+                <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-yellow-500 shadow-lg">
+                  <img
+                    src={`${URL_CONFIG.uri}/avatars/${currentUser.avatar}`}
+                    alt={"Photo de profil"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             ) : (
               <div className="w-20 h-20 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center border-4 border-yellow-500 shadow-lg">
