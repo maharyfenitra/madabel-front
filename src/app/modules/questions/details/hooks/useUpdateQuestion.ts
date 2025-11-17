@@ -23,6 +23,7 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     const router = useRouter()
   const [text, setText] = useState<string>(question?.text || "")
   const [type, setType] = useState<string>(question?.type || "SINGLE_CHOICE")
+  const [category, setCategory] = useState<string>(question?.category || "SUMMIT")
   const [order, setOrder] = useState<number | "">(question?.order ?? "")
   const [weight, setWeight] = useState<number | "">(question?.weight ?? "")
   const [language, setLanguage] = useState<string>(question?.language || "fr")
@@ -60,6 +61,7 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
       const payload: any = {
         text,
         type,
+        category,
         order: order === "" ? null : Number(order),
         weight: weight === "" ? null : Number(weight),
         language,
@@ -96,6 +98,7 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     handleSave,
     text,   
     type,
+    category,
     order,
     weight,
     language,
@@ -105,6 +108,7 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     newOptIsKey,
     setText,
     setType,
+    setCategory,
     setOrder,
     setWeight,
     setLanguage,

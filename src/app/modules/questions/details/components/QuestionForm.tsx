@@ -16,6 +16,7 @@ type Props = {
 const QuestionForm = ({ onCreate }: Props) => {
   const [text, setText] = useState('');
   const [type, setType] = useState('SINGLE_CHOICE');
+  const [category, setCategory] = useState('SUMMIT');
   const [options, setOptions] = useState<{ text: string; value?: number; isKey?: boolean; id?: string }[]>([]);
   const [optText, setOptText] = useState('');
   const [optValue, setOptValue] = useState('');
@@ -51,8 +52,9 @@ const QuestionForm = ({ onCreate }: Props) => {
       e.preventDefault();
     }
     if (!text.trim()) return;
-    onCreate({ text, type, options });
+    onCreate({ text, type, category, options });
     setText('');
+    setCategory('SUMMIT');
     setOptions([]);
     setOptText('');
     setOptValue('');
@@ -95,6 +97,31 @@ const QuestionForm = ({ onCreate }: Props) => {
         ) : (
           <div className="h-11 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 flex items-center text-sm text-gray-500">
             Choix simple
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <MadaLabel htmlFor="question-category" className="flex items-center gap-2">
+          <HelpCircle className="w-4 h-4" />
+          Catégorie de question
+        </MadaLabel>
+        {mounted ? (
+          <Select value={category} onValueChange={(val) => setCategory(String(val))}>
+            <SelectTrigger className="h-11">
+              <SelectValue placeholder="Sélectionner la catégorie" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="POSITION">Position (Compétences individuelles)</SelectItem>
+              <SelectItem value="PERMISSION">Permission (Autorisations & accès)</SelectItem>
+              <SelectItem value="PRODUCTION">Production (Performance & résultats)</SelectItem>
+              <SelectItem value="DEVELOPMENT_OF_OTHERS">Développement des autres (Mentorat & formation)</SelectItem>
+              <SelectItem value="SUMMIT">Sommet (Vision stratégique)</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="h-11 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 flex items-center text-sm text-gray-500">
+            Sommet
           </div>
         )}
       </div>

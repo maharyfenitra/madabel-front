@@ -10,10 +10,13 @@ export default function Home() {
 	useEffect(() => {
 		const user = getUser();
 		if (user && user.role === "EVALUATOR") {
-			// candidate => send to evaluations list
+			// evaluator => send to evaluations list
 			router.replace("/modules/evaluations");
+		} else if (user && user.role === "CANDIDAT") {
+			// candidate => send to reports
+			router.replace("/modules/reports");
 		} else {
-			// default landing for other users
+			// default landing for other users (admin, etc.)
 			router.replace("/modules/home");
 		}
 	}, [router, getUser]);

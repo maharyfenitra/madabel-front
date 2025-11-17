@@ -14,10 +14,13 @@ import { Menu } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Separator } from "@/components/ui/separator";
 import { useHeader } from "../hooks/useHeader";
+import { useCurrentUser } from "@/app/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {
   const { navItems, menuOpen, setMenuOpen, isActiveRoute } = useHeader();
+  const { getUser } = useCurrentUser();
+  const user = getUser();
 
   const regularNavItems = navItems.filter((item) => !item.isLogout);
   const logoutItem = navItems.find((item) => item.isLogout);
@@ -26,22 +29,32 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link 
-            href="/modules/home" 
-            className="flex items-center space-x-2 group transition-transform hover:scale-105"
-          >
-            <div className="relative">
-              <Image
-                src="/Logo-couleurs-Madabel.webp"
-                alt="Madabel Logo"
-                width={130}
-                height={45}
-                priority
-                className="h-10 w-auto object-contain"
-              />
-            </div>
-          </Link>
+          {/* Logo et nom utilisateur */}
+          <div className="flex items-center gap-6">
+            <Link 
+              href="/modules/home" 
+              className="flex items-center space-x-2 group transition-transform hover:scale-105"
+            >
+              <div className="relative">
+                <Image
+                  src="/Logo-couleurs-Madabel.webp"
+                  alt="Madabel Logo"
+                  width={130}
+                  height={45}
+                  priority
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
+            </Link>
+
+            {/* Nom de l'utilisateur connecté */}
+            {user && (
+              <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Bonjour, {user.name}</span>
+              </div>
+            )}
+          </div>
 
           {/* Desktop Menu */}
           <nav className="hidden md:flex items-center gap-1">
@@ -152,6 +165,12 @@ export const Header = () => {
 
                 {/* Footer du menu mobile */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-gray-50 dark:bg-gray-800">
+                  {user && (
+                    <div className="flex items-center gap-2 mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Connecté en tant que {user.name}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Image
                       src="/Logo-couleurs-Madabel.webp"

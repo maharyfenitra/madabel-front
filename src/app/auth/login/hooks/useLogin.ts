@@ -2,13 +2,14 @@ import { useGenericMutation } from "@/app/lib/api";
 import { useState } from "react";
 import { useAccessToken, useRefreshToken, useCurrentUser } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const useLogin = () => {
   const { mutateAsync } = useGenericMutation("/auth/login/");
-  const { setAccessToken } = useAccessToken()
-  const { setRefreshToken } = useRefreshToken()
-  const { setUser } = useCurrentUser()
-  const { push } = useRouter()
+  const { setAccessToken } = useAccessToken();
+  const { setRefreshToken } = useRefreshToken();
+  const { setUser } = useCurrentUser();
+  const { push } = useRouter();
 
   const [loginParams, setLoginParams] = useState<LoginParams>({
     email: "",
@@ -26,22 +27,29 @@ export const useLogin = () => {
   };
 
   const handleSubmit = async () => {
-    const data = await mutateAsync({ ...loginParams });
+    try {
+      const data = await mutateAsync({ ...loginParams });
 
-    console.log(data)
-    
-    setAccessToken(data?.accessToken)
-    setRefreshToken(data?.refreshToken)
-    setUser(data?.user)
-    // Redirect candidate users to their evaluations, others to home
-    const role = data?.user?.role
-    if (role === 'EVALUATOR') {
-      push('/modules/evaluations')
-    } else {
-      push('/modules/home')
+      console.log(data);
+
+      setAccessToken(data?.accessToken);
+      setRefreshToken(data?.refreshToken);
+      setUser(data?.user);
+      // Redirect candidate users to their evaluations, others to home
+      const role = data?.user?.role;
+      if (role === "EVALUATOR") {
+        push("/modules/evaluations");
+      } else if (role === "CANDIDAT") {
+        push("/modules/reports");
+      } else {
+        push("/modules/home");
+      }
+    } catch (error) {
+      toast.error("Échec de la connexion. Veuillez vérifier vos identifiants.");
+      return;
     }
-  }
-  return { handleChange, loginParams, handleSubmit};
+  };
+  return { handleChange, loginParams, handleSubmit };
 };
 
 type LoginParams = {

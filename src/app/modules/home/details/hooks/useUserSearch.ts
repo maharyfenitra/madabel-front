@@ -7,6 +7,7 @@ export type UserSuggestion = {
   name: string;
   email: string;
   phone?: string;
+  post?: string;
   role: string;
 };
 
@@ -37,6 +38,7 @@ export const useUserSearch = () => {
     return;
   }, [searchQuery]);
 
+  
   return {
     searchQuery,
     setSearchQuery,

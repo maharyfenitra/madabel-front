@@ -22,8 +22,6 @@ export const useCandidateQuiz = (quizId?: number, page: number = 1, limit: numbe
     } as any;
   }, `/candidate-evaluations/quiz/${quizId}?${queryParams}`, `candidate-quiz-${quizId}-page-${page}-limit-${limit}`);
 
-  console.log("Candidate Quiz Data:", data);
-
   return { data, isLoading, error };
 };
 

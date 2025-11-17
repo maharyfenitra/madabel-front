@@ -65,7 +65,7 @@ export default function Page(){
                     </div>
                     <div>
                       {ev.quizId ? (
-                        <Link href={`/modules/evaluations/${ev.quizId}?participantId=${ev.currentParticipantId}`}>
+                        <Link href={`/modules/evaluations/${ev.quizId}?participantId=${ev.currentParticipantId}&evaluationId=${ev.id}`}>
                           <MadaButton>Remplir</MadaButton>
                         </Link>
                       ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import { AddParticipantDialog } from "./AddParticipantDialog";
+import { MailButton } from "./MailButton";
 import { useParams } from "next/navigation";
 import { useParticipantList } from "../hooks/useParticipantList";
 import { useAccessToken } from "@/app/lib/api";
@@ -31,6 +32,7 @@ export const ParticipantList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sendingParticipants, setSendingParticipants] = useState<Set<number>>(new Set());
 
   const { participants, refetchParticipants, isLoading } = useParticipantList(
     Number(params?.id!)
@@ -73,6 +75,19 @@ export const ParticipantList = () => {
     }
   };
 
+  const getEvaluatorTypeLabel = (evaluatorType: string | null) => {
+    if (!evaluatorType) return "—";
+
+    const typeLabels: Record<string, string> = {
+      DIRECT_MANAGER: "Manager Direct",
+      DIRECT_COLLEAGUE: "Collaborateur Direct",
+      PEER: "Pair/Associé",
+      OTHER: "Autres (client/fournisseur/famille/amis/etc.)",
+    };
+
+    return typeLabels[evaluatorType] || evaluatorType;
+  };
+
   const getRoleBadge = (role: string) => {
     const roleColors: Record<string, { bg: string; text: string }> = {
       ADMIN: { bg: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400", text: "ADMIN" },
@@ -85,6 +100,17 @@ export const ParticipantList = () => {
         {colors.text}
       </Badge>
     );
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -151,10 +177,19 @@ export const ParticipantList = () => {
                       </div>
                     </TableHead>
                     <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
+                      Type
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                       Rôle
                     </TableHead>
                     <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                       Send mail
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
+                      <div className="flex items-center gap-2">
+                        <Send className="w-4 h-4" />
+                        Statut envoi
+                      </div>
                     </TableHead>
                     <TableHead className="text-right font-semibold text-gray-700 dark:text-gray-300">
                       Actions
@@ -182,38 +217,34 @@ export const ParticipantList = () => {
                         {participant.user.phone}
                       </TableCell>
                       <TableCell>
+                        {getEvaluatorTypeLabel(participant.evaluatorType)}
+                      </TableCell>
+                      <TableCell>
                         {getRoleBadge(participant.user.role)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          className="bg-green-500 hover:bg-green-600 text-white"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              const accessToken = getAccessToken();
-                              const res = await sendRequest(
-                                "POST",
-                                `${URL_CONFIG.uri}/evaluations/participant/${participant.id}/send-mail`,
-                                {},
-                                {
-                                  ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),
-                                }
-                              );
-
-                              if (res?.data) {
-                                toast.success("Mail envoyé avec succès");
-                              } else {
-                                toast.success("Demande d'envoi envoyée");
-                              }
-                            } catch (error: any) {
-                              console.error("Erreur envoi mail:", error);
-                              toast.error("Impossible d'envoyer le mail", { description: error?.message || String(error) });
-                            }
-                          }}
-                        >
-                          <Send className="w-4 h-4 mr-1" />
-                          Envoyer mail
-                        </Button>
+                        <MailButton
+                          participant={participant}
+                          refetchParticipants={refetchParticipants}
+                          sendingParticipants={sendingParticipants}
+                          setSendingParticipants={setSendingParticipants}
+                        />
+                      </TableCell>
+                      <TableCell className="text-gray-700 dark:text-gray-300">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${participant.mailSentAt ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                            <span className="text-xs">
+                              Invitation: {formatDate(participant.mailSentAt)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${participant.reminderSentAt ? 'bg-orange-500' : 'bg-gray-400'}`}></div>
+                            <span className="text-xs">
+                              Relance: {formatDate(participant.reminderSentAt)}
+                            </span>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

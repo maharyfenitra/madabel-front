@@ -4,12 +4,46 @@ import useQuizzes from "../hooks/useQuizzes";
 import Link from "next/link";
 import { MadaButton } from "@/app/lib/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileQuestion, Plus, ArrowRight, Loader2, AlertCircle, BookOpen } from "lucide-react";
+import { FileQuestion, Plus, ArrowRight, Loader2, AlertCircle, BookOpen, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const QuizList = () => {
-  const { quizzes, isLoading } = useQuizzes();
+  const { quizzes, isLoading, deleteQuiz } = useQuizzes();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = (quiz: any) => {
+    setQuizToDelete(quiz);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!quizToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteQuiz(quizToDelete.id);
+      setDeleteDialogOpen(false);
+      setQuizToDelete(null);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -76,6 +110,17 @@ const QuizList = () => {
                           </CardDescription>
                         )}
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDelete(q);
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                     <div className="flex items-center gap-2 mt-3">
                       <Badge variant={q.isActive ? "default" : "secondary"} className="text-xs">
@@ -100,6 +145,35 @@ const QuizList = () => {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer le questionnaire "{quizToDelete?.title}" ?
+              Cette action est irréversible et supprimera également toutes les questions et réponses associées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                "Supprimer"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

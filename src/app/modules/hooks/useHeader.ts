@@ -8,6 +8,7 @@ import {
   ActivityIcon,
   User,
   LogOut,
+  FileText,
 } from "lucide-react";
 
 export type NavItem = {
@@ -29,7 +30,7 @@ export const useHeader = () => {
     { label: "Home", href: "/modules/home", icon: Home },
     { label: "Utilisateurs", href: "/modules/users", icon: Users },
     { label: "Quizzes", href: "/modules/quizzes", icon: FileQuestion },
-    { label: "Profile", href: "/profile", icon: User },
+    { label: "Profile", href: "/modules/profiles", icon: User },
     {
       label: "Se déconnecter",
       href: "/auth/logout",
@@ -59,6 +60,22 @@ export const useHeader = () => {
           href: "/modules/evaluations",
           icon: ActivityIcon,
         },
+        { label: "Profile", href: "/modules/profiles", icon: User },
+        {
+          label: "Se déconnecter",
+          href: "/auth/logout",
+          icon: LogOut,
+          isLogout: true,
+        },
+      ]);
+    } else if (currentUser && currentUser.role === "CANDIDAT") {
+      setNavItems([
+        {
+          label: "Mes rapports",
+          href: "/modules/reports",
+          icon: FileText,
+        },
+        { label: "Profile", href: "/modules/profiles", icon: User },
         {
           label: "Se déconnecter",
           href: "/auth/logout",
