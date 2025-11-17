@@ -5,6 +5,7 @@ export const useCurrentUser = () => {
   const setUser = (user: any) => {
     if (!isBrowser) return
     try {
+      console.log('Setting user in localStorage:', user)
       localStorage.setItem('current_user', JSON.stringify(user))
     } catch (e) {
       console.error('Failed to set user', e)

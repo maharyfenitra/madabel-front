@@ -39,6 +39,8 @@ export const useLogin = () => {
       const role = data?.user?.role;
       if (role === "EVALUATOR") {
         push("/modules/evaluations");
+      } else if (role === "CANDIDAT") {
+        push("/modules/reports");
       } else {
         push("/modules/home");
       }

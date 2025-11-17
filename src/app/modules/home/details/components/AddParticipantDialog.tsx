@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useAddParticipantDialog } from "../hooks/useAddParticipantDialog";
-import { useUserSearch, type UserSuggestion } from "../hooks/useUserSearch";
+import { useUserSearch } from "../hooks/useUserSearch";
 import { Users, User, Mail, Phone, Briefcase, UserCircle, Plus, Save } from "lucide-react";
 
 export const AddParticipantDialog = ({
@@ -24,6 +24,7 @@ export const AddParticipantDialog = ({
 }) => {
   const { newUser, handleChange, handleSubmit } =
     useAddParticipantDialog(evaluationId, callBack);
+    
   const { searchQuery, setSearchQuery, suggestions, suggestionsText, isLoading } = useUserSearch();
 
   const handleUserSelect = (selectedText: string) => {
@@ -45,6 +46,13 @@ export const AddParticipantDialog = ({
           target: { name: 'phone', value: selectedUser.phone }
         } as React.ChangeEvent<HTMLInputElement>;
         handleChange(phoneEvent);
+      }
+      
+      if(selectedUser.post){
+        const postEvent = {
+          target: { name: 'post', value: selectedUser.post }
+        } as React.ChangeEvent<HTMLInputElement>;
+        handleChange(postEvent);
       }
     }
   };

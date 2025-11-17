@@ -70,6 +70,7 @@ export const useSubmitAnswers = () => {
     
       // build answers array
       const answers = buildAnswersPayload();
+      console.log(participantId)
 
       if (!participantId) {
         toast.error(
