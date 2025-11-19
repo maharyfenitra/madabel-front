@@ -21,7 +21,7 @@ export const useGenericQuery = <TData>(
     queryKey: [cacheKey],
     //refetchInterval,
     queryFn: async () => {
-      return await sendRequest(
+      const response = await sendRequest(
         "GET",
         `${URL_CONFIG.uri}${endpoint}`,
         params,
@@ -29,8 +29,12 @@ export const useGenericQuery = <TData>(
           Authorization: `Token ${getAccessToken()}`
         }
       );
+
+      return response;
     },
   });
+
+ 
 
   return callBack(query);
 };
