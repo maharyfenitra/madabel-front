@@ -1,12 +1,19 @@
+"use client"
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export const useFetch = () => {
+
+  const router = useRouter();
+
   const sendRequest = async (
     method: string,
     endpoint: string,
     params: any,
     headers = {}
   ) => {
+
+    try{
     let response;
 
     // Si c'est un FormData, on ne touche pas au Content-Type, Axios le gère
@@ -33,7 +40,18 @@ export const useFetch = () => {
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
 
+    console.log("Response from", endpoint, ":", response.data);
+
     return response;
+    } catch (error: any) {
+      if(error?.response?.data?.err?.name=="TokenExpiredError"){
+        router.push("/auth/login");
+        console.log("Token expired");
+        return error?.response
+      };
+      console.error("❌ Error in useFetch:", error);
+      throw error;
+    }
   };
 
   return sendRequest;
