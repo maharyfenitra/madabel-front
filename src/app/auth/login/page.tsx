@@ -63,6 +63,14 @@ export default function LoginPage() {
                 onChange={(e) => handleChange("password", e.target.value)}
                 className="h-11"
               />
+              <div className="text-right">
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-sm text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 hover:underline transition-colors"
+                >
+                  Mot de passe oublié ?
+                </Link>
+              </div>
             </div>
 
             <MadaButton 

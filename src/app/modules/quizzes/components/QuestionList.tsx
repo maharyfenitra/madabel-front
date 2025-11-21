@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAccessToken } from "@/app/lib/api";
 import { useFetch } from "@/app/lib/api/useFetch";
-import { URL_CONFIG } from "@/app/lib/api/configServer";
+import { useServerConfig } from "@/app/lib/api/configServer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +47,7 @@ export const QuestionList = ({
   const { getAccessToken } = useAccessToken();
   const sendRequest = useFetch();
   const router = useRouter();
+  const { uri } = useServerConfig();
 
   const handleDelete = (id: number) => {
     setQuestionToDelete(id);
@@ -60,7 +61,7 @@ export const QuestionList = ({
       const accessToken = getAccessToken();
       await sendRequest(
         "DELETE",
-        `${URL_CONFIG.uri}/questions/${questionToDelete}`,
+        `${uri}/questions/${questionToDelete}`,
         {},
         {
           ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),

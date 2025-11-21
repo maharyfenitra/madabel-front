@@ -34,7 +34,5 @@ export const useGenericQuery = <TData>(
     },
   });
 
- 
-
   return callBack(query);
 };
