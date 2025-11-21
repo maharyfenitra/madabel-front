@@ -1,7 +1,6 @@
 import { useFetch } from '@/app/lib/api/useFetch';
 import { useGenericQuery } from '@/app/lib/api';
 import { formatDataFromQuery } from '@/app/lib/api';
-import { URL_CONFIG } from '@/app/lib/api/configServer';
 import { useAccessToken } from '@/app/lib/api/useAccessToken';
 
 export const useQuestions = (quizId?: number) => {

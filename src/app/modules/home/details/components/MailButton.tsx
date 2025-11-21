@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { URL_CONFIG } from "@/app/lib/api/configServer";
+import { useServerConfig } from "@/app/lib/api/configServer";
 import { toast } from "sonner";
 import { Users, Mail, Phone, Trash2, Loader2, AlertCircle, User as UserIcon, Send } from "lucide-react";
 import { useAccessToken } from "@/app/lib/api";
@@ -22,6 +22,7 @@ export const MailButton = ({
 
      const { getAccessToken } = useAccessToken();
       const sendRequest = useFetch();
+      const { uri } = useServerConfig();
 
     return <div className="flex gap-2 justify-end">
                           {!participant.mailSentAt && (
@@ -35,7 +36,7 @@ export const MailButton = ({
                                   const accessToken = getAccessToken();
                                   const res = await sendRequest(
                                     "POST",
-                                    `${URL_CONFIG.uri}/evaluations/participant/${participant.id}/send-mail`,
+                                    `${uri}/evaluations/participant/${participant.id}/send-mail`,
                                     {},
                                     {
                                       ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),
@@ -79,7 +80,7 @@ export const MailButton = ({
                                   const accessToken = getAccessToken();
                                   const res = await sendRequest(
                                     "POST",
-                                    `${URL_CONFIG.uri}/evaluations/participant/${participant.id}/send-reminder`,
+                                    `${uri}/evaluations/participant/${participant.id}/send-reminder`,
                                     {},
                                     {
                                       ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),

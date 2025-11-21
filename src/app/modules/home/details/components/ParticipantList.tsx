@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useParticipantList } from "../hooks/useParticipantList";
 import { useAccessToken } from "@/app/lib/api";
 import { useFetch } from "@/app/lib/api/useFetch";
-import { URL_CONFIG } from "@/app/lib/api/configServer";
+import { useServerConfig } from "@/app/lib/api/configServer";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -40,6 +40,7 @@ export const ParticipantList = () => {
   
   const { getAccessToken } = useAccessToken();
   const sendRequest = useFetch();
+  const { uri } = useServerConfig();
 
   const handleDelete = async (id: number) => {
     setParticipantToDelete(id);
@@ -54,7 +55,7 @@ export const ParticipantList = () => {
       const accessToken = getAccessToken();
       await sendRequest(
         "DELETE",
-        `${URL_CONFIG.uri}/evaluations/delete/participant/${participantToDelete}`,
+        `${uri}/evaluations/delete/participant/${participantToDelete}`,
         {},
         {
           ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),

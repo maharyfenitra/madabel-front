@@ -40,8 +40,6 @@ export const useFetch = () => {
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
 
-    console.log("Response from", endpoint, ":", response.data);
-
     return response;
     } catch (error: any) {
       if(error?.response?.data?.err?.name=="TokenExpiredError"){
