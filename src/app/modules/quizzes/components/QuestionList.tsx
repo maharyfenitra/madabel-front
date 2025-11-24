@@ -135,11 +135,6 @@ export const QuestionList = ({
                         <Badge variant="outline" className="text-xs">
                           {q.type}
                         </Badge>
-                        {q.language && (
-                          <Badge variant="secondary" className="text-xs">
-                            {q.language.toUpperCase()}
-                          </Badge>
-                        )}
                         {q.weight && (
                           <Badge variant="secondary" className="text-xs">
                             Poids: {q.weight}

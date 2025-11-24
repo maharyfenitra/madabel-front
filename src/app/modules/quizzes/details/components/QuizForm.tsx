@@ -158,11 +158,6 @@ const QuizForm = () => {
                                           {q.options.length} option{q.options.length > 1 ? "s" : ""}
                                         </Badge>
                                       )}
-                                      {q.language && (
-                                        <Badge variant="secondary" className="text-xs">
-                                          {q.language.toUpperCase()}
-                                        </Badge>
-                                      )}
                                     </div>
                                   </div>
                                 </div>

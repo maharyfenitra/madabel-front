@@ -28,7 +28,8 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
       return { isValid: false, message: "Aucune question trouvée" };
 
     const unansweredQuestions: string[] = [];
-
+    
+    // Vérifier toutes les questions de la page actuelle
     for (const question of quiz.questions) {
       const answer = answersMap[question.id];
 
@@ -53,10 +54,10 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
         continue;
       }
 
-      // Pour les questions échelle, vérifier que c'est un nombre valide
+      // Pour les questions numériques/échelle
       if (
-        question.type === "SCALE" &&
-        (typeof answer !== "number" || answer < 0 || answer > 10)
+        (question.type === "SCALE" || question.type === "NUMERIC") &&
+        (answer === undefined || answer === null || answer === "")
       ) {
         unansweredQuestions.push(question.text);
         continue;
@@ -67,7 +68,7 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
       const questionsList = unansweredQuestions.map((q) => `• ${q}`).join("\n");
       return {
         isValid: false,
-        message: `Veuillez répondre aux questions suivantes :\n\n${questionsList}`,
+        message: `Veuillez répondre à toutes les questions avant de soumettre`,
         unansweredCount: unansweredQuestions.length,
       };
     }
@@ -80,9 +81,7 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
     if (!quiz?.questions) return { isValid: false, message: "Aucune question trouvée" };
 
     const unansweredQuestions: string[] = [];
-    const startIndex = (currentPage - 1) * questionsPerPage;
-    const endIndex = Math.min(startIndex + questionsPerPage, quiz.questions.length);
-    const currentPageQuestions = quiz.questions.slice(startIndex, endIndex);
+    const currentPageQuestions = quiz.questions;
 
     for (const question of currentPageQuestions) {
       const answer = answersMap[question.id];
@@ -108,10 +107,10 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
         continue;
       }
 
-      // Pour les questions échelle, vérifier que c'est un nombre valide
+      // Pour les questions numériques/échelle
       if (
-        question.type === "SCALE" &&
-        (typeof answer !== "number" || answer < 0 || answer > 10)
+        (question.type === "SCALE" || question.type === "NUMERIC") &&
+        (answer === undefined || answer === null || answer === "")
       ) {
         unansweredQuestions.push(question.text);
         continue;
@@ -122,7 +121,7 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
       const questionsList = unansweredQuestions.map((q) => `• ${q}`).join("\n");
       return {
         isValid: false,
-        message: `Veuillez répondre aux questions de cette page avant de continuer :\n\n${questionsList}`,
+        message: `Veuillez répondre aux questions de cette page avant de continuer`,
         unansweredCount: unansweredQuestions.length,
       };
     }

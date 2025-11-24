@@ -21,7 +21,6 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     category,
     order,
     weight,
-    language,
     options,
     newOptText,
     newOptValue,
@@ -31,7 +30,6 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     setCategory,
     setOrder,
     setWeight,
-    setLanguage,
     setOptions,
     setNewOptText,
     setNewOptValue,
@@ -85,19 +83,7 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <div>
-          <Label className="text-sm">Langue</Label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="w-full rounded-md border px-2 py-1"
-          >
-            <option value="fr">fr</option>
-            <option value="en">en</option>
-          </select>
-        </div>
-
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <Label className="text-sm">Ordre</Label>
           <Input
