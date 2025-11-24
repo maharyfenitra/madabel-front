@@ -243,6 +243,11 @@ export const ParticipantList = () => {
                             <div className={`w-2 h-2 rounded-full ${participant.reminderSentAt ? 'bg-orange-500' : 'bg-gray-400'}`}></div>
                             <span className="text-xs">
                               Relance: {formatDate(participant.reminderSentAt)}
+                              {participant.reminderCount > 0 && (
+                                <span className="ml-2 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full text-xs font-semibold">
+                                  {participant.reminderCount}×
+                                </span>
+                              )}
                             </span>
                           </div>
                         </div>

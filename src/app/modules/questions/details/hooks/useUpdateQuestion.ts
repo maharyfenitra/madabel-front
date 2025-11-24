@@ -26,7 +26,6 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
   const [category, setCategory] = useState<string>(question?.category || "SUMMIT")
   const [order, setOrder] = useState<number | "">(question?.order ?? "")
   const [weight, setWeight] = useState<number | "">(question?.weight ?? "")
-  const [language, setLanguage] = useState<string>(question?.language || "fr")
 
   const [options, setOptions] = useState<OptionShape[]>(
     (question?.options || []).map((o: any) => ({ id: o.id ?? o._id ?? undefined, text: o.text || "", value: o.value ?? null, isKey: !!o.isKey }))
@@ -64,7 +63,6 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
         category,
         order: order === "" ? null : Number(order),
         weight: weight === "" ? null : Number(weight),
-        language,
         options: options.map((o) => ({ text: o.text, value: typeof o.value === 'number' ? o.value : undefined, isKey: typeof o.isKey === 'boolean' ? o.isKey : undefined })),
       }
 
@@ -101,7 +99,6 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     category,
     order,
     weight,
-    language,
     options,
     newOptText,
     newOptValue,
@@ -111,7 +108,6 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     setCategory,
     setOrder,
     setWeight,
-    setLanguage,
     setOptions,
     setNewOptText,
     setNewOptValue,

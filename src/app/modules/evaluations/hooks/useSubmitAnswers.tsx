@@ -1,5 +1,5 @@
 import { useCurrentUser, useGenericMutation } from "@/app/lib/api";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import useCandidateQuiz from "./useCandidateQuiz";
 import { toast } from "sonner";
@@ -8,7 +8,12 @@ import { useCandidatePreviousAnswers } from "./useCandidatePreviousAnswers";
 
 export const useSubmitAnswers = () => {
   const params = useParams() as { quizId?: string };
+  const searchParams = useSearchParams();
+  
   const quizId = parseInt(String(params?.quizId || ""), 10);
+  const participantId = parseInt(searchParams.get("participantId") || searchParams.get("p") || "0", 10);
+  const evaluationId = parseInt(searchParams.get("evaluationId") || searchParams.get("e") || "0", 10);
+  
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isSaving, setIsSaving] = useState(false);
   const questionsPerPage = 5;
@@ -37,14 +42,6 @@ export const useSubmitAnswers = () => {
       setAnswersMap(previousAnswers);
     }
   }, [previousAnswers, answersMap]);
-
-  // Get participantId and evaluationId from URL params
-  const sp = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : ""
-  );
-  const participantId = Number(sp.get("participantId") || sp.get("p") || 0);
-
-  const evaluationId = Number(sp.get("evaluationId") || sp.get("e") || 0);
 
   const { mutateAsync } = useGenericMutation(
     `/candidate-evaluations/participant/${participantId}/`
