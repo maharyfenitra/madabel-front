@@ -250,6 +250,12 @@ export const ParticipantList = () => {
                               )}
                             </span>
                           </div>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${participant.completedAt ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+                            <span className="text-xs">
+                              Complétée: {formatDate(participant.completedAt)}
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">

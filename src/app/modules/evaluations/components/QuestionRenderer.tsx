@@ -18,9 +18,10 @@ type Props = {
   question: Question;
   value: any;
   onChange: (questionId: number, value: any) => void;
+  disabled?: boolean;
 };
 
-export default function QuestionRenderer({ question, value, onChange }: Props) {
+export default function QuestionRenderer({ question, value, onChange, disabled = false }: Props) {
   const qType = question.type;
 
   if (qType === 'TEXT') {
@@ -33,10 +34,11 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
             </h3>
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
               <textarea
-                className="w-full min-h-[120px] rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-vertical"
+                className="w-full min-h-[120px] rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-vertical disabled:opacity-60 disabled:cursor-not-allowed"
                 value={value || ''}
                 onChange={(e) => onChange(question.id, e.target.value)}
                 placeholder="Tapez votre réponse ici..."
+                disabled={disabled}
               />
             </div>
           </div>
@@ -64,7 +66,8 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
                     max={10}
                     value={numeric}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(question.id, Number(e.target.value))}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={disabled}
                   />
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">10</span>
                 </div>
@@ -97,6 +100,7 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
   if (qType === 'MULTIPLE_CHOICE') {
     const selected: number[] = Array.isArray(value) ? value : [];
     const toggle = (optId: number) => {
+      if (disabled) return;
       if (selected.includes(optId)) onChange(question.id, selected.filter((s) => s !== optId));
       else onChange(question.id, [...selected, optId]);
     };
@@ -111,12 +115,13 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
               <div className="space-y-3">
                 {(question.options || []).map((opt) => (
-                  <label key={opt.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                  <label key={opt.id} className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-gray-700 cursor-pointer'}`}>
                     <input
                       type="checkbox"
                       checked={selected.includes(opt.id)}
                       onChange={() => toggle(opt.id)}
-                      className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                      className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                      disabled={disabled}
                     />
                     <span className="text-gray-900 dark:text-gray-100 font-medium">{opt.text}</span>
                   </label>
@@ -141,13 +146,14 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
             <div className="space-y-3">
               {(question.options || []).map((opt) => (
-                <label key={opt.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                <label key={opt.id} className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white dark:hover:bg-gray-700 cursor-pointer'}`}>
                   <input
                     type="radio"
                     name={`q-${question.id}`}
                     checked={selected === opt.id}
-                    onChange={() => onChange(question.id, opt.id)}
-                    className="w-5 h-5 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2"
+                    onChange={() => !disabled && onChange(question.id, opt.id)}
+                    className="w-5 h-5 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={disabled}
                   />
                   <span className="text-gray-900 dark:text-gray-100 font-medium">{opt.text}</span>
                 </label>

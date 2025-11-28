@@ -34,7 +34,7 @@ export const useSubmitAnswers = () => {
   const user = getUser();
 
   // Charger les réponses précédentes
-  const { previousAnswers, isLoading: isLoadingPreviousAnswers } = useCandidatePreviousAnswers();
+  const { previousAnswers, completedAt, isLoading: isLoadingPreviousAnswers } = useCandidatePreviousAnswers();
 
   // Initialiser answersMap avec les réponses précédentes quand elles sont chargées
   useEffect(() => {
@@ -57,12 +57,32 @@ export const useSubmitAnswers = () => {
   // Fonction générale pour changer de page avec sauvegarde automatique
   const goToPage = async (page: number) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
-      //await saveCurrentPageAnswers();
+      // Si l'évaluation est complétée, permettre la navigation directe
+      if (completedAt) {
+        setCurrentPage(page);
+        return;
+      }
+
+      // Sinon, valider et sauvegarder avant de changer de page
+      const validation = validateCurrentPageAnswers();
+      if (!validation.isValid) {
+        toast.error(validation.message, {
+          duration: 8000,
+          description: validation.description,
+        });
+        return;
+      }
+
+      // Sauvegarder en mode brouillon
+      setIsSaving(true);
+      await saveCurrentPageAnswers(false);
+      setIsSaving(false);
+      
       setCurrentPage(page);
     }
   };
 
-  const saveCurrentPageAnswers = async () => {
+  const saveCurrentPageAnswers = async (isFinalSubmit: boolean = false) => {
     try {
     
       // build answers array
@@ -84,36 +104,45 @@ export const useSubmitAnswers = () => {
       }
 
       const onSaveSuccess = () => {
-        toast.success("Réponses envoyées");
-        //router.push('/');
+        if (isFinalSubmit) {
+          toast.success("Évaluation complétée avec succès!");
+        } else {
+          // Ne pas afficher de toast pour les sauvegardes en brouillon
+          // toast.success("Réponses enregistrées");
+        }
       };
 
       await mutateAsync(
         {
           answers,
           evaluationId,
+          isDraft: !isFinalSubmit, // Envoyer isDraft=true pour les brouillons
+          isFinalSubmit,
         },
         { onSuccess: onSaveSuccess }
       );
+
+      return true;
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de l'envoi des réponses");
+      return false;
     }
   };
 
   const handleSubmit = async () => {
-
      // Valider que toutes les questions ont été répondues
       const validation = validateAnswers();
       if (!validation.isValid) {
         toast.error(validation.message, {
-          duration: 6000, // Afficher plus longtemps pour les longs messages
-          description: `${validation.unansweredCount} question(s) non répondu(s)`,
+          duration: 8000,
+          description: `${validation.unansweredCount} question(s) non répondue(s) au total. Veuillez vérifier toutes les pages.`,
         });
-        return;
+        return false;
       }
 
-    await saveCurrentPageAnswers();
+    // Sauvegarder avec soumission finale
+    return await saveCurrentPageAnswers(true);
   };
 
   const handleChange = (questionId: number, value: any) => {
@@ -121,33 +150,52 @@ export const useSubmitAnswers = () => {
   };
 
   const handleClickPrevious = async () => {
+    // Si l'évaluation est complétée, permettre la navigation sans validation ni sauvegarde
+    if (completedAt) {
+      await goToPage(currentPage - 1);
+      return;
+    }
 
      // Valider seulement les questions de la page actuelle avant de permettre la navigation
       const validation = validateCurrentPageAnswers();
       if (!validation.isValid) {
         toast.error(validation.message, {
-          duration: 6000, // Afficher plus longtemps pour les longs messages
-          description: `${validation.unansweredCount} question(s) non répondu(s) sur cette page`,
+          duration: 8000,
+          description: validation.description,
         });
         return;
       }
 
-    await saveCurrentPageAnswers()
+    // Sauvegarder en mode brouillon (sans soumission finale)
+    setIsSaving(true);
+    await saveCurrentPageAnswers(false);
+    setIsSaving(false);
+    
     await goToPage(currentPage - 1);
   };
 
   const handleClickNext = async () => {
+    // Si l'évaluation est complétée, permettre la navigation sans validation ni sauvegarde
+    if (completedAt) {
+      await goToPage(currentPage + 1);
+      return;
+    }
+
      // Valider seulement les questions de la page actuelle avant de permettre la navigation
       const validation = validateCurrentPageAnswers();
       if (!validation.isValid) {
         toast.error(validation.message, {
-          duration: 6000, // Afficher plus longtemps pour les longs messages
-          description: `${validation.unansweredCount} question(s) non répondu(s) sur cette page`,
+          duration: 8000,
+          description: validation.description,
         });
         return;
       }
 
-    await saveCurrentPageAnswers()
+    // Sauvegarder en mode brouillon (sans soumission finale)
+    setIsSaving(true);
+    await saveCurrentPageAnswers(false);
+    setIsSaving(false);
+    
     await goToPage(currentPage + 1);
   };
 
@@ -171,6 +219,8 @@ export const useSubmitAnswers = () => {
     goToPage,
     validateAnswers,
     validateCurrentPageAnswers,
+    completedAt,
+    isCompleted: !!completedAt,
   };
 };
 

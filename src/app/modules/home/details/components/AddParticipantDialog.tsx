@@ -182,8 +182,8 @@ export const AddParticipantDialog = ({
               </select>
             </div>
 
-            {/* Champs supplémentaires si EVALUATEUR */}
-            {newUser.role === "EVALUATOR" && (
+            {/* Champs type d'évaluateur pour EVALUATOR et CANDIDAT */}
+            {(newUser.role === "EVALUATOR" || newUser.role === "CANDIDAT") && (
               <div className="space-y-2 md:col-span-2">
                 <MadaLabel htmlFor="evaluatorType" className="flex items-center gap-2">
                   <UserCircle className="w-4 h-4" />

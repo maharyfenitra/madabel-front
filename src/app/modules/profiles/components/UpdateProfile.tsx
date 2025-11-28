@@ -29,7 +29,9 @@ export default function UpdateProfile() {
   
   const { formData, handleChange, handleFileChange, handleSubmit } = useUpdateProfile()
 
-  console.log(`${uri}/avatars/${currentUser.avatar}`)
+
+  // Sécuriser l'accès à avatar pour éviter les erreurs de build
+  const avatarUrl = currentUser && currentUser.avatar ? `${uri}/avatars/${currentUser.avatar}` : null;
 
 
   // Redirect to login if not authenticated
@@ -61,11 +63,11 @@ export default function UpdateProfile() {
         <CardHeader className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pb-4">
           <div className="flex flex-col items-center space-y-4">
             {/* Avatar display */}
-            {currentUser.avatar ? (
+            {avatarUrl ? (
               <div className="relative">
                 <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-yellow-500 shadow-lg">
                   <img
-                  src={`${uri}/avatars/${currentUser.avatar}`}
+                    src={avatarUrl}
                     alt={"Photo de profil"}
                     className="w-full h-full object-cover"
                   />

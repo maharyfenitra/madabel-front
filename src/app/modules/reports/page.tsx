@@ -23,10 +23,21 @@ type Evaluation = {
   deadline: string;
   isCompleted: boolean;
   createdAt: string;
-  currentParticipantId: number | null;
+  candidat: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  evaluatorsCount: number;
+  completedEvaluators: number;
+  quiz: {
+    id: number;
+    title: string;
+  } | null;
   participants: Array<{
     id: number;
     participantRole: string;
+    completedAt: string | null;
     user: {
       id: number;
       name: string;
@@ -55,8 +66,8 @@ export default function ReportsPage() {
 
   const { data, isLoading, error } = useGenericQuery(
     (data) => formatDataFromQuery(data),
-    `/candidate-evaluations/?page=${page}&limit=${limit}`,
-    `candidate-evaluations-${page}`,
+    `/reports?page=${page}&limit=${limit}`,
+    `reports-${page}`,
     {}
   );
 
@@ -68,10 +79,14 @@ export default function ReportsPage() {
             <div>
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FileText className="w-6 h-6 text-yellow-500" />
-                Mes Rapports d'Évaluation
+                {user?.role === "ADMIN" ? "Tous les Rapports d'Évaluation" : 
+                 user?.role === "EVALUATOR" ? "Rapports auxquels j'ai participé" :
+                 "Mes Rapports d'Évaluation"}
               </CardTitle>
               <CardDescription className="mt-1.5 text-gray-600 dark:text-gray-400">
-                Consultez les évaluations réalisées par vos évaluateurs
+                {user?.role === "ADMIN" ? "Gérez et consultez tous les rapports d'évaluation" :
+                 user?.role === "EVALUATOR" ? "Consultez les rapports des évaluations que vous avez complétées" :
+                 "Consultez les évaluations réalisées par vos évaluateurs"}
               </CardDescription>
             </div>
           </div>
@@ -96,23 +111,18 @@ export default function ReportsPage() {
           ) : (() => {
             const evaluations = data?.evaluations || [];
 
-            // Filtrer seulement les évaluations où l'utilisateur est candidat
-            const candidateEvaluations = evaluations.filter((evaluation: Evaluation) =>
-              evaluation.participants.some(
-                (participant: Evaluation['participants'][0]) =>
-                  participant.user.id === user?.id &&
-                  participant.participantRole === "CANDIDAT"
-              )
-            );
-
-            return candidateEvaluations.length === 0 ? (
+            return evaluations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle className="w-12 h-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   Aucun rapport disponible
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Vous n'avez pas encore d'évaluations complétées par vos évaluateurs.
+                  {user?.role === "ADMIN" 
+                    ? "Aucune évaluation n'a été créée pour le moment."
+                    : user?.role === "EVALUATOR"
+                    ? "Vous n'avez pas encore participé à des évaluations."
+                    : "Vous n'avez pas encore d'évaluations complétées par vos évaluateurs."}
                 </p>
               </div>
             ) : (
@@ -127,6 +137,11 @@ export default function ReportsPage() {
                             Référence
                           </div>
                         </TableHead>
+                        {(user?.role === "ADMIN" || user?.role === "EVALUATOR") && (
+                          <TableHead className="font-semibold text-gray-900 dark:text-gray-100">
+                            Candidat
+                          </TableHead>
+                        )}
                         <TableHead className="font-semibold text-gray-900 dark:text-gray-100">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-500" />
@@ -136,7 +151,7 @@ export default function ReportsPage() {
                         <TableHead className="font-semibold text-gray-900 dark:text-gray-100">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-gray-500" />
-                            Évaluateurs
+                            Progression
                           </div>
                         </TableHead>
                         <TableHead className="font-semibold text-gray-900 dark:text-gray-100">
@@ -148,13 +163,7 @@ export default function ReportsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {candidateEvaluations.map((evaluation: Evaluation) => {
-                        // Trouver les évaluateurs (participants qui ne sont pas le candidat actuel)
-                        const evaluators = evaluation.participants.filter(
-                          (participant: Evaluation['participants'][0]) =>
-                            participant.participantRole === "EVALUATOR" ||
-                            participant.user.id !== user?.id
-                        );
+                      {evaluations.map((evaluation: Evaluation) => {
 
                         return (
                           <TableRow
@@ -167,27 +176,46 @@ export default function ReportsPage() {
                                 {evaluation.ref}
                               </div>
                             </TableCell>
+                            {(user?.role === "ADMIN" || user?.role === "EVALUATOR") && (
+                              <TableCell className="text-gray-700 dark:text-gray-300">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{evaluation.candidat?.name || "N/A"}</span>
+                                  <span className="text-xs text-gray-500">{evaluation.candidat?.email}</span>
+                                </div>
+                              </TableCell>
+                            )}
                             <TableCell className="text-gray-700 dark:text-gray-300">
                               {new Date(evaluation.deadline).toLocaleDateString("fr-FR")}
                             </TableCell>
                             <TableCell className="text-gray-700 dark:text-gray-300">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium">{evaluators.length}</span>
-                                <span className="text-sm text-gray-500">
-                                  évaluateur{evaluators.length > 1 ? 's' : ''}
-                                </span>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium">
+                                      {evaluation.completedEvaluators} / {evaluation.evaluatorsCount}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-green-500 h-2 rounded-full transition-all" 
+                                      style={{ 
+                                        width: `${evaluation.evaluatorsCount > 0 ? (evaluation.completedEvaluators / evaluation.evaluatorsCount) * 100 : 0}%` 
+                                      }}
+                                    ></div>
+                                  </div>
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell>
                               <Badge
-                                variant={evaluation.isCompleted ? "default" : "secondary"}
+                                variant={evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0 ? "default" : "secondary"}
                                 className={
-                                  evaluation.isCompleted
+                                  evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                     : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                                 }
                               >
-                                {evaluation.isCompleted ? "Terminée" : "En cours"}
+                                {evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0 ? "Terminée" : "En cours"}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">

@@ -86,12 +86,6 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
     for (const question of currentPageQuestions) {
       const answer = answersMap[question.id];
 
-      // Vérifier si la réponse est vide ou null
-      if (answer === undefined || answer === null || answer === "") {
-        unansweredQuestions.push(question.text);
-        continue;
-      }
-
       // Pour les questions à choix multiples, vérifier qu'au moins une option est sélectionnée
       if (
         question.type === "MULTIPLE_CHOICE" &&
@@ -107,6 +101,12 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
         continue;
       }
 
+      // Pour les questions à choix unique (SINGLE_CHOICE), vérifier qu'une option est sélectionnée
+      if (question.type === "SINGLE_CHOICE" && (!answer || answer === null)) {
+        unansweredQuestions.push(question.text);
+        continue;
+      }
+
       // Pour les questions numériques/échelle
       if (
         (question.type === "SCALE" || question.type === "NUMERIC") &&
@@ -118,10 +118,24 @@ export const useSubmitAnswersTools = (quiz: any, answersMap: any, currentPage: n
     }
 
     if (unansweredQuestions.length > 0) {
-      const questionsList = unansweredQuestions.map((q) => `• ${q}`).join("\n");
+      // Créer un message avec la liste des questions non répondues
+      const questionsList = unansweredQuestions
+        .slice(0, 3) // Limiter à 3 questions pour ne pas surcharger
+        .map((q, idx) => {
+          // Tronquer le texte de la question si trop long
+          const shortText = q.length > 50 ? q.substring(0, 50) + "..." : q;
+          return `${idx + 1}. ${shortText}`;
+        })
+        .join("\n");
+      
+      const moreText = unansweredQuestions.length > 3 
+        ? `\n... et ${unansweredQuestions.length - 3} autre(s) question(s)` 
+        : "";
+
       return {
         isValid: false,
-        message: `Veuillez répondre aux questions de cette page avant de continuer`,
+        message: `${unansweredQuestions.length} question(s) non répondue(s) sur cette page`,
+        description: questionsList + moreText,
         unansweredCount: unansweredQuestions.length,
       };
     }

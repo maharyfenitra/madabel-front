@@ -30,6 +30,16 @@ export const useHeader = () => {
     { label: "Home", href: "/modules/home", icon: Home },
     { label: "Utilisateurs", href: "/modules/users", icon: Users },
     { label: "Quizzes", href: "/modules/quizzes", icon: FileQuestion },
+    {
+      label: "Mes évaluations",
+      href: "/modules/evaluations",
+      icon: ActivityIcon,
+    },
+    {
+      label: "Rapports",
+      href: "/modules/reports",
+      icon: FileText,
+    },
     { label: "Profile", href: "/modules/profiles", icon: User },
     {
       label: "Se déconnecter",
@@ -53,25 +63,18 @@ export const useHeader = () => {
     const { getUser } = useCurrentUser();
     const currentUser = getUser();
 
-    if (currentUser && currentUser.role === "EVALUATOR") {
+    if (
+      currentUser &&
+      (currentUser.role === "EVALUATOR" || currentUser.role === "CANDIDAT")
+    ) {
       setNavItems([
         {
           label: "Mes évaluations",
           href: "/modules/evaluations",
           icon: ActivityIcon,
         },
-        { label: "Profile", href: "/modules/profiles", icon: User },
         {
-          label: "Se déconnecter",
-          href: "/auth/logout",
-          icon: LogOut,
-          isLogout: true,
-        },
-      ]);
-    } else if (currentUser && currentUser.role === "CANDIDAT") {
-      setNavItems([
-        {
-          label: "Mes rapports",
+          label: "Rapports",
           href: "/modules/reports",
           icon: FileText,
         },
@@ -85,7 +88,6 @@ export const useHeader = () => {
       ]);
     }
   }, []);
-
 
   const isActiveRoute = (href: string) => {
     if (href === "/modules/home") {
