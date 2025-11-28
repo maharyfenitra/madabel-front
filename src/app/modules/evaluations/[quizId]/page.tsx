@@ -2,9 +2,22 @@
 import QuestionRenderer from "../components/QuestionRenderer";
 import useSubmitAnswers from "../hooks/useSubmitAnswers";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
-import { ArrowLeft, FileText, Save } from 'lucide-react';
+import { ArrowLeft, FileText, Save, CheckCircle, Eye } from 'lucide-react';
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Pagination,
@@ -25,6 +38,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 export default function Page() {
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const evaluationId = searchParams.get("evaluationId") || searchParams.get("e");
+  
   const {
     handleSubmit,
     handleChange,
@@ -42,10 +60,29 @@ export default function Page() {
     handleClickPrevious,
     isSaving,
     goToPage,
+    completedAt,
+    isCompleted,
   } = useSubmitAnswers();
+
+  // Rediriger vers la page de résultats si l'évaluation est complétée
+  useEffect(() => {
+    if (isCompleted && evaluationId) {
+      router.replace(`/modules/evaluations/${quiz?.id}/results?evaluationId=${evaluationId}`);
+    }
+  }, [isCompleted, evaluationId, quiz?.id, router]);
+
+  const onConfirmSubmit = async () => {
+    const success = await handleSubmit();
+    if (success) {
+      setConfirmDialogOpen(false);
+    }
+  };
 
   if (isLoading) return <div>Chargement...</div>;
   if (!quiz) return <div>Quiz introuvable</div>;
+  
+  // Ne rien afficher pendant la redirection
+  if (isCompleted) return <div>Redirection...</div>;
 
   return (
     <div className="py-6">
@@ -59,7 +96,7 @@ export default function Page() {
       <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
+            <div className="flex-1">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FileText className="w-6 h-6 text-yellow-500" />
                 {quiz.title}
@@ -84,9 +121,10 @@ export default function Page() {
                   currentPage === totalPages && (
                     <div className="mt-6 flex justify-end">
                       <Button
-                        onClick={handleSubmit}
+                        onClick={() => setConfirmDialogOpen(true)}
                         className="bg-yellow-500 hover:bg-yellow-600 text-black"
                       >
+                        <CheckCircle className="w-4 h-4 mr-2" />
                         Soumettre le questionnaire
                       </Button>
                     </div>
@@ -124,37 +162,6 @@ export default function Page() {
                     />
                   </PaginationItem>
 
-                  {Array.from({ length: Math.min(totalPages, 5) }).map(
-                    (_, idx) => {
-                      let pageNumber: number;
-                      if (totalPages <= 5) {
-                        pageNumber = idx + 1;
-                      } else if (currentPage <= 3) {
-                        pageNumber = idx + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNumber = totalPages - 4 + idx;
-                      } else {
-                        pageNumber = currentPage - 2 + idx;
-                      }
-
-                      return (
-                        <PaginationItem key={pageNumber}>
-                        <PaginationLink
-                          href="#"
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            await goToPage(pageNumber);
-                          }}
-                          isActive={pageNumber === currentPage}
-                          className="cursor-pointer"
-                        >
-                          {pageNumber}
-                        </PaginationLink>
-                        </PaginationItem>
-                      );
-                    }
-                  )}
-
                   <PaginationItem>
                     <PaginationNext
                       onClick={handleClickNext}
@@ -172,6 +179,32 @@ export default function Page() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog de confirmation */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la soumission</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir soumettre cette évaluation ? 
+              <br /><br />
+              <strong>Une fois soumise, vous ne pourrez plus modifier vos réponses.</strong>
+              <br /><br />
+              Vous pourrez toujours consulter vos réponses ultérieurement en mode lecture seule.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onConfirmSubmit}
+              className="bg-yellow-500 hover:bg-yellow-600 text-black"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Confirmer et soumettre
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

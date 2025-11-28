@@ -62,33 +62,43 @@ export default function ReportDetailPage() {
   const { getUser } = useCurrentUser();
   const user = getUser();
 
-  // Récupérer les informations générales de l'évaluation
-  const { data: evaluationData, isLoading: isLoadingEvaluation } = useGenericQuery(
-    (data) => formatDataFromQuery(data) ,
-    `/candidate-evaluations/${evaluationId}`,
-    `candidate-evaluation-${evaluationId}`
-  );
-
-  // Récupérer le rapport détaillé
-  const { data: reportData, isLoading: isLoadingReport } = useGenericQuery(
+  // Récupérer le rapport détaillé (qui contient aussi les infos de l'évaluation)
+  const { data: reportData, isLoading, error } = useGenericQuery(
     (data) => formatDataFromQuery(data) ,
     `/reports/${evaluationId}`,
-    `evaluation-report-${evaluationId}`,
-    
+    `evaluation-report-${evaluationId}`
   );
 
-  if (isLoadingEvaluation || isLoadingReport) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement du rapport...</p>
         </div>
       </div>
     );
   }
 
-  const evaluation = evaluationData?.evaluation;
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            {error.message || "Erreur lors du chargement du rapport"}
+          </div>
+          <Link href="/modules/reports">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour aux rapports
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const evaluation = reportData?.evaluation;
 
   if (!evaluation) {
     return (
@@ -106,14 +116,17 @@ export default function ReportDetailPage() {
     );
   }
 
-  // Vérifier que l'utilisateur est bien le candidat de cette évaluation
-  const isCandidate = evaluation.participants.some(
-    (participant: Evaluation['participants'][0]) =>
-      participant.user.id === user?.id &&
-      participant.participantRole === "CANDIDAT"
-  );
+  // Vérifier les droits d'accès
+  // ADMIN : accès à tous les rapports
+  // EVALUATOR : accès aux rapports où il a participé
+  // CANDIDAT : accès à ses propres rapports
+  const hasAccess = user?.role === "ADMIN" || 
+    evaluation.participants.some(
+      (participant: Evaluation['participants'][0]) =>
+        participant.user.id === user?.id
+    );
 
-  if (!isCandidate) {
+  if (!hasAccess) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">

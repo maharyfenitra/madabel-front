@@ -48,6 +48,7 @@ export const useCandidatePreviousAnswers = () => {
 
   return {
     previousAnswers,
+    completedAt: data?.completedAt,
     isLoading,
     error,
     hasPreviousAnswers: Object.keys(previousAnswers).length > 0,
