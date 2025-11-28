@@ -26,7 +26,7 @@ export const useAddParticipantDialog = (evaluationId: number,  callBack: () => v
       const data = await mutateAsync({ ...newUser, evaluationId });
 
       toast.success("Participant avec succès 🎉", {
-        description: `Réf: ${data.ref || "non renseignée"}`,
+        description: `L'utilisateur ${data.participant.name} a été ajouté.`,
       });
 
        callBack()
