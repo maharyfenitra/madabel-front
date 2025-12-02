@@ -23,6 +23,8 @@ export type Evaluation = {
     isCompleted: boolean
     role?: string | null
     participants?: EvaluationParticipant[]
+    evaluatorsCount?: number
+    completedEvaluators?: number
 }
 
 type UseEvaluationTableResult = {

@@ -15,8 +15,8 @@ const CONFIG = {
     ur_socket: process.env.NEXT_PUBLIC_SOCKET_URL || "localhost:8001",
   },
   production: {
-    uri: process.env.NEXT_PUBLIC_API_URL || "http://161.97.162.47:8000",
-    ur_socket: process.env.NEXT_PUBLIC_SOCKET_URL || "161.97.162.47:8000",
+    uri: process.env.NEXT_PUBLIC_API_URL || "https://api-evaluation.madabel.com/",
+    ur_socket: process.env.NEXT_PUBLIC_SOCKET_URL || "https://api-evaluation.madabel.com/",
   },
 } as const;
 
