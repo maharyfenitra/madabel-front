@@ -1,5 +1,5 @@
 import { useCurrentUser, useGenericMutation } from "@/app/lib/api";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import useCandidateQuiz from "./useCandidateQuiz";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { useCandidatePreviousAnswers } from "./useCandidatePreviousAnswers";
 export const useSubmitAnswers = () => {
   const params = useParams() as { quizId?: string };
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   const quizId = parseInt(String(params?.quizId || ""), 10);
   const participantId = parseInt(searchParams.get("participantId") || searchParams.get("p") || "0", 10);
@@ -106,6 +107,7 @@ export const useSubmitAnswers = () => {
       const onSaveSuccess = () => {
         if (isFinalSubmit) {
           toast.success("Évaluation complétée avec succès!");
+          router.push("/modules/evaluations/");
         } else {
           // Ne pas afficher de toast pour les sauvegardes en brouillon
           // toast.success("Réponses enregistrées");
