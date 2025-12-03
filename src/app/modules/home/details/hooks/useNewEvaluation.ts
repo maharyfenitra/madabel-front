@@ -11,7 +11,6 @@ export const useNewEvaluation = () => {
   const [formData, setFormData] = useState<EvaluationParams>({
     ref: "",
     deadline: "",
-    completedAt: "",
     
   });
 
@@ -71,6 +70,5 @@ export const useNewEvaluation = () => {
 export type EvaluationParams = {
   ref: string;
   deadline: string;
-  completedAt: string;
 
 };

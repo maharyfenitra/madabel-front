@@ -15,7 +15,6 @@ export const useUpdateEvaluation = () => {
     ref: "",
     createdAt: "",
     deadline: "",
-    completedAt: "",
   });
 
   //  Récupération de l'évaluation depuis l'API
@@ -45,9 +44,6 @@ export const useUpdateEvaluation = () => {
           : "",
         deadline: evaluation.deadline
           ? new Date(evaluation.deadline).toISOString().split("T")[0]
-          : "",
-        completedAt: evaluation.completedAt
-          ? new Date(evaluation.completedAt).toISOString().split("T")[0]
           : "",
       });
     }
@@ -102,5 +98,4 @@ export type EvaluationParams = {
   quizId?: number | null;
   createdAt: string;
   deadline: string;
-  completedAt: string;
 };

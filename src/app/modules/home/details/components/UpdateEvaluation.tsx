@@ -1,7 +1,7 @@
 "use client"
 
 import { ChangeEvent } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import {
   Card,
   CardHeader,
@@ -14,13 +14,30 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { MadaButton, MadaInput, MadaLabel } from "@/app/lib/components"
 import { useUpdateEvaluation } from "../hooks/useUpdateEvaluation"
+import { useParticipantList } from "../hooks/useParticipantList"
 import { ParticipantList } from "./ParticipantList"
-import { FileText, Calendar, X, Save, ArrowLeft } from "lucide-react"
+import { FileText, Calendar, X, Save, ArrowLeft, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
 export function UpdateEvaluation() {
   const router = useRouter()
+  const params = useParams()
   const { handleSubmit, handleChange, formData, quizzes } = useUpdateEvaluation()
+  const { participants } = useParticipantList(Number(params?.id))
+
+  // Calculer la date du dernier participant ayant complété
+  const getLastCompletedDate = () => {
+    if (!participants || participants.length === 0) return null;
+    
+    const completedDates = participants
+      .filter((p: any) => p.completedAt)
+      .map((p: any) => new Date(p.completedAt).getTime())
+      .sort((a: number, b: number) => b - a);
+    
+    return completedDates.length > 0 ? new Date(completedDates[0]) : null;
+  };
+
+  const lastCompletedDate = getLastCompletedDate();
 
   return (
     <div className="space-y-6">
@@ -92,19 +109,23 @@ export function UpdateEvaluation() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <MadaLabel htmlFor="completedAt" className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Date d'achèvement (optionnel)
-                </MadaLabel>
-                <MadaInput
-                  id="completedAt"
-                  name="completedAt"
-                  type="date"
-                  value={formData.completedAt}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("completedAt", e.target.value)}
-                />
-              </div>
+              {lastCompletedDate && (
+                <div className="space-y-2">
+                  <MadaLabel className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    Date du dernier participant complété
+                  </MadaLabel>
+                  <div className="px-3 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md text-sm text-green-700 dark:text-green-400">
+                    {lastCompletedDate.toLocaleDateString("fr-FR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </div>
+                </div>
+              )}
 
               
               <div className="space-y-2">
