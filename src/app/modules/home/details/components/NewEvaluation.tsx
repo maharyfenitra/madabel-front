@@ -66,20 +66,6 @@ export function NewEvaluation() {
                 required
               />
             </div>
-
-            <div className="space-y-2">
-              <MadaLabel htmlFor="completedAt" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Date d'achèvement (optionnel)
-              </MadaLabel>
-              <MadaInput
-                id="completedAt"
-                name="completedAt"
-                type="date"
-                value={formData.completedAt}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("completedAt", e.target.value)}
-              />
-            </div>
           </div>
         </CardContent>
 
