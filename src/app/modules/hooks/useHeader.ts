@@ -9,6 +9,7 @@ import {
   User,
   LogOut,
   FileText,
+  Settings,
 } from "lucide-react";
 
 export type NavItem = {
@@ -40,6 +41,7 @@ export const useHeader = () => {
       href: "/modules/reports",
       icon: FileText,
     },
+    { label: "Configuration", href: "/modules/config", icon: Settings },
     { label: "Profile", href: "/modules/profiles", icon: User },
     {
       label: "Se déconnecter",

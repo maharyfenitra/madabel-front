@@ -17,6 +17,7 @@ export const useSubmitAnswers = () => {
   
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const questionsPerPage = 5;
 
   const { data: quizData, isLoading } = useCandidateQuiz(
@@ -144,7 +145,13 @@ export const useSubmitAnswers = () => {
       }
 
     // Sauvegarder avec soumission finale
-    return await saveCurrentPageAnswers(true);
+    setIsSubmitting(true);
+    const result = await saveCurrentPageAnswers(true);
+    if (!result) {
+      setIsSubmitting(false);
+    }
+    // Si succès, laisser isSubmitting à true pendant la redirection
+    return result;
   };
 
   const handleChange = (questionId: number, value: any) => {
@@ -218,6 +225,7 @@ export const useSubmitAnswers = () => {
     handleClickNext,
     handleClickPrevious,
     isSaving,
+    isSubmitting,
     goToPage,
     validateAnswers,
     validateCurrentPageAnswers,

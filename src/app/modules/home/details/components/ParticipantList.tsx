@@ -7,7 +7,8 @@ import { useParticipantList } from "../hooks/useParticipantList";
 import { useAccessToken } from "@/app/lib/api";
 import { useFetch } from "@/app/lib/api/useFetch";
 import { useServerConfig } from "@/app/lib/api/configServer";
-import { toast } from "sonner";
+import { showSuccess, showError, handleApiError } from "@/app/lib/utils";
+import { formatEvaluatorType, formatDate } from "@/app/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from "@/components/ui/table";
@@ -62,32 +63,19 @@ export const ParticipantList = () => {
         }
       );
       refetchParticipants();
-      toast.success("Participant supprimé", {
+      showSuccess("Participant supprimé", {
         description: "Le participant a été retiré de l'évaluation",
       });
       setDeleteDialogOpen(false);
       setParticipantToDelete(null);
     } catch (error: any) {
-      toast.error("Erreur de suppression", {
-        description: error?.message || "Une erreur est survenue lors de la suppression",
-      });
+      handleApiError(error, "Erreur lors de la suppression du participant");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const getEvaluatorTypeLabel = (evaluatorType: string | null) => {
-    if (!evaluatorType) return "—";
-
-    const typeLabels: Record<string, string> = {
-      DIRECT_MANAGER: "Manager Direct",
-      DIRECT_COLLEAGUE: "Collaborateur Direct",
-      PEER: "Pair/Associé",
-      OTHER: "Autres (client/fournisseur/famille/amis/etc.)",
-    };
-
-    return typeLabels[evaluatorType] || evaluatorType;
-  };
+  const getEvaluatorTypeLabel = formatEvaluatorType;
 
   const getRoleBadge = (role: string) => {
     const roleColors: Record<string, { bg: string; text: string }> = {
