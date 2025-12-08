@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { formatDataFromQuery, useGenericQuery } from "@/app/lib/api";
 import { useCurrentUser } from "@/app/lib/api";
+import { useAccessToken } from "@/app/lib/api/useAccessToken";
+import { URL_CONFIG } from "@/app/lib/api/configServer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, FileText, Eye, Loader2, AlertCircle } from "lucide-react";
+import { Calendar, Users, FileText, Eye, Loader2, AlertCircle, Download } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -16,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { generateReportPDF } from "@/app/lib/utils/pdf";
+import { toast } from "sonner";
 
 type Evaluation = {
   id: number;
@@ -60,6 +64,7 @@ type EvaluationsResponse = {
 export default function ReportsPage() {
   const { getUser } = useCurrentUser();
   const user = getUser();
+  const { getAccessToken } = useAccessToken();
 
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -70,6 +75,51 @@ export default function ReportsPage() {
     `reports-${page}`,
     {}
   );
+
+  const handleDownloadPDF = async (evaluationId: number, ref: string) => {
+    try {
+      toast.info("Génération du PDF en cours...");
+      
+      const token = getAccessToken();
+      
+      if (!token) {
+        toast.error("Non authentifié. Veuillez vous reconnecter.");
+        return;
+      }
+      
+      // Récupérer les données du rapport avec authentification
+      const response = await fetch(`${URL_CONFIG.uri}/reports/${evaluationId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Non autorisé. Veuillez vous reconnecter.');
+        }
+        throw new Error('Erreur lors de la récupération du rapport');
+      }
+      
+      const reportData = await response.json();
+      
+      // Générer le PDF
+      await generateReportPDF({
+        evaluationRef: ref,
+        candidatName: reportData.candidat?.name,
+        deadline: reportData.evaluation?.deadline || reportData.deadline,
+        report: reportData.report,
+      });
+      
+      toast.success("PDF téléchargé avec succès!");
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la génération du PDF");
+    }
+  };
 
   return (
     <div className="py-6">
@@ -219,16 +269,27 @@ export default function ReportsPage() {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Link href={`/modules/reports/${evaluation.id}`}>
+                              <div className="flex items-center justify-end gap-2">
+                                <Link href={`/modules/reports/${evaluation.id}`}>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400"
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Voir le rapport
+                                  </Button>
+                                </Link>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400"
+                                  onClick={() => handleDownloadPDF(evaluation.id, evaluation.ref)}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 dark:text-green-400"
                                 >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Voir le rapport
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Télécharger PDF
                                 </Button>
-                              </Link>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 
-import { ArrowLeft, FileText, Save, CheckCircle, Eye } from 'lucide-react';
+import { ArrowLeft, FileText, Save, CheckCircle, Eye, Loader2 } from 'lucide-react';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -59,6 +59,7 @@ export default function Page() {
     handleClickNext,
     handleClickPrevious,
     isSaving,
+    isSubmitting,
     goToPage,
     completedAt,
     isCompleted,
@@ -72,10 +73,9 @@ export default function Page() {
   }, [isCompleted, evaluationId, quiz?.id, router]);
 
   const onConfirmSubmit = async () => {
-    const success = await handleSubmit();
-    if (success) {
-      setConfirmDialogOpen(false);
-    }
+    setConfirmDialogOpen(false); // Fermer le dialog immédiatement
+    await handleSubmit();
+    // isSubmitting est géré dans le hook
   };
 
   if (isLoading) return <div>Chargement...</div>;
@@ -123,9 +123,19 @@ export default function Page() {
                       <Button
                         onClick={() => setConfirmDialogOpen(true)}
                         className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                        disabled={isSubmitting}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Soumettre le questionnaire
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Soumission en cours...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Soumettre le questionnaire
+                          </>
+                        )}
                       </Button>
                     </div>
                   )}
@@ -194,13 +204,23 @@ export default function Page() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={onConfirmSubmit}
               className="bg-yellow-500 hover:bg-yellow-600 text-black"
+              disabled={isSubmitting}
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Confirmer et soumettre
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Soumission en cours...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Confirmer et soumettre
+                </>
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

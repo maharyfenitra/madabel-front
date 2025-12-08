@@ -2,7 +2,7 @@
 import { formatDataFromQuery, useGenericMutation, useGenericQuery } from "@/app/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { toast } from "sonner";
+import { showSuccess, handleApiError } from "@/app/lib/utils";
 
 export const useUpdateEvaluation = () => {
   const router = useRouter();
@@ -65,14 +65,11 @@ export const useUpdateEvaluation = () => {
     try {
       const data = await mutateAsync({ ...formData });
      
-      toast.success("Évaluation enregistrée avec succès 🎉", {
+      showSuccess("Évaluation enregistrée avec succès", {
         description: `Réf: ${formData?.ref || "non renseignée"}`,
       });
     } catch (error: any) {
-      console.error("Erreur lors de la création :", error);
-      toast.error("Impossible d'enregistrer l'évaluation ❌", {
-        description: error?.message ?? "Une erreur est survenue",
-      });
+      handleApiError(error, "Impossible d'enregistrer l'évaluation");
     }
   };
 
