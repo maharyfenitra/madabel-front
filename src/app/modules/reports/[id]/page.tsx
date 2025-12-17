@@ -279,9 +279,6 @@ export default function ReportDetailPage() {
                               </span>
                               <div>
                                 <p className="text-sm leading-relaxed">{question.questionText}</p>
-                                <Badge variant="outline" className="mt-2 text-xs">
-                                  {question.questionType}
-                                </Badge>
                               </div>
                             </div>
                           </TableCell>

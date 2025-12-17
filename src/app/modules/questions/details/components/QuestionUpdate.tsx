@@ -88,20 +88,22 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
           <Label className="text-sm">Ordre</Label>
           <Input
             type="number"
-            value={order as any}
-            onChange={(e) =>
-              setOrder(e.target.value === "" ? "" : Number(e.target.value))
-            }
+            value={order === "" ? "" : order}
+            onChange={(e) => {
+              const val = e.target.value;
+              setOrder(val === "" ? "" : Number(val));
+            }}
           />
         </div>
         <div>
           <Label className="text-sm">Poids</Label>
           <Input
             type="number"
-            value={weight as any}
-            onChange={(e) =>
-              setWeight(e.target.value === "" ? "" : Number(e.target.value))
-            }
+            value={weight === "" ? "" : weight}
+            onChange={(e) => {
+              const val = e.target.value;
+              setWeight(val === "" ? "" : Number(val));
+            }}
           />
         </div>
       </div>
