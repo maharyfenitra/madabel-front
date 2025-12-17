@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,6 +35,23 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
   const [newOptValue, setNewOptValue] = useState<string | number>("")
   const [newOptIsKey, setNewOptIsKey] = useState(false)
 
+  // Synchroniser avec les props uniquement au montage initial ou changement d'ID
+  useEffect(() => {
+    setText(question?.text || "")
+    setType(question?.type || "SINGLE_CHOICE")
+    setCategory(question?.category || "SUMMIT")
+    setOrder(question?.order ?? "")
+    setWeight(question?.weight ?? "")
+    setOptions(
+      (question?.options || []).map((o: any) => ({ 
+        id: o.id ?? o._id ?? undefined, 
+        text: o.text || "", 
+        value: o.value ?? null, 
+        isKey: !!o.isKey 
+      }))
+    )
+  }, [question?.id]) // Seulement quand l'ID de la question change
+
     const { mutateAsync: updateAsync } = useGenericMutation<any>(`/questions/${question?.id}`, "PUT")
     const { mutateAsync: deleteAsync } = useGenericMutation<any>(`/questions/${question?.id}`, "DELETE")
 
@@ -61,16 +78,24 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
         text,
         type,
         category,
-        order: order === "" ? null : Number(order),
-        weight: weight === "" ? null : Number(weight),
         options: options.map((o) => ({ text: o.text, value: typeof o.value === 'number' ? o.value : undefined, isKey: typeof o.isKey === 'boolean' ? o.isKey : undefined })),
       }
 
-  await updateAsync(payload)
+      // N'envoyer order que s'il a une valeur
+      if (order !== "" && order !== null) {
+        payload.order = Number(order);
+      }
+
+      // N'envoyer weight que s'il a une valeur
+      if (weight !== "" && weight !== null) {
+        payload.weight = Number(weight);
+      }
+
+      const result = await updateAsync(payload)
       toast.success("Question mise à jour")
+      onSaved?.()
       // refresh to get latest data
       router.refresh()
-      onSaved?.()
     } catch (err: any) {
       console.error(err)
       toast.error("Impossible de mettre à jour la question")
