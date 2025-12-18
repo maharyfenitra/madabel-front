@@ -1,5 +1,6 @@
 "use client";
 import QuestionRenderer from "../components/QuestionRenderer";
+import IntroductionPages from "../components/IntroductionPages";
 import useSubmitAnswers from "../hooks/useSubmitAnswers";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -39,6 +40,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Page() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [showIntroduction, setShowIntroduction] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const evaluationId = searchParams.get("evaluationId") || searchParams.get("e");
@@ -72,6 +74,13 @@ export default function Page() {
     }
   }, [isCompleted, evaluationId, quiz?.id, router]);
 
+  // Ne pas afficher l'introduction si l'évaluation est déjà commencée (completedAt existe ou answersMap non vide)
+  useEffect(() => {
+    if (completedAt || Object.keys(answersMap).length > 0) {
+      setShowIntroduction(false);
+    }
+  }, [completedAt, answersMap]);
+
   const onConfirmSubmit = async () => {
     setConfirmDialogOpen(false); // Fermer le dialog immédiatement
     await handleSubmit();
@@ -83,6 +92,24 @@ export default function Page() {
   
   // Ne rien afficher pendant la redirection
   if (isCompleted) return <div>Redirection...</div>;
+
+  // Afficher les pages d'introduction si nécessaire
+  if (showIntroduction) {
+    return (
+      <div className="py-6">
+        <Link href="/modules/evaluations">
+          <Button variant="ghost" className="mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour aux évaluations
+          </Button>
+        </Link>
+        <IntroductionPages
+          candidateName={quiz.candidateName || quiz.title || "le candidat"}
+          onComplete={() => setShowIntroduction(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="py-6">

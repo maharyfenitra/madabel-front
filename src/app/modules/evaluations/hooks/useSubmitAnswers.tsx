@@ -23,7 +23,8 @@ export const useSubmitAnswers = () => {
   const { data: quizData, isLoading } = useCandidateQuiz(
     quizId,
     currentPage,
-    questionsPerPage
+    questionsPerPage,
+    participantId
   );
   const quiz = quizData;
 
