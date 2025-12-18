@@ -1,7 +1,7 @@
 import { useGenericQuery } from '@/app/lib/api';
 import { formatDataFromQuery } from '@/app/lib/api';
 
-export const useCandidateQuiz = (quizId?: number, page: number = 1, limit: number = 5) => {
+export const useCandidateQuiz = (quizId?: number, page: number = 1, limit: number = 5, participantId?: number) => {
   // do not call the API if no quizId
   if (!quizId) {
     return { data: null, isLoading: false, error: null } as any;
@@ -12,6 +12,10 @@ export const useCandidateQuiz = (quizId?: number, page: number = 1, limit: numbe
     limit: limit.toString()
   });
 
+  if (participantId) {
+    queryParams.append('participantId', participantId.toString());
+  }
+
   const {data, isLoading, error} =  useGenericQuery((raw: any) => {
     const axiosResponse = raw?.data;
     const body = axiosResponse?.data ?? axiosResponse ?? {};
@@ -20,7 +24,7 @@ export const useCandidateQuiz = (quizId?: number, page: number = 1, limit: numbe
       isLoading: raw.isLoading,
       error: raw.error,
     } as any;
-  }, `/candidate-evaluations/quiz/${quizId}?${queryParams}`, `candidate-quiz-${quizId}-page-${page}-limit-${limit}`);
+  }, `/candidate-evaluations/quiz/${quizId}?${queryParams}`, `candidate-quiz-${quizId}-page-${page}-limit-${limit}-participant-${participantId || 'none'}`);
 
   return { data, isLoading, error };
 };
