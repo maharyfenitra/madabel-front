@@ -23,7 +23,9 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     const router = useRouter()
   const [text, setText] = useState<string>(question?.text || "")
   const [type, setType] = useState<string>(question?.type || "SINGLE_CHOICE")
-  const [category, setCategory] = useState<string>(question?.category || "SUMMIT")
+  const [category, setCategory] = useState<string>(question?.category || "PRODUCTION")
+  const [subcategory, setSubcategory] = useState<string | undefined>(question?.subcategory || undefined)
+  const [developOthers, setDevelopOthers] = useState<boolean>(question?.developOthers || false)
   const [order, setOrder] = useState<number | "">(question?.order ?? "")
   const [weight, setWeight] = useState<number | "">(question?.weight ?? "")
 
@@ -39,7 +41,9 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
   useEffect(() => {
     setText(question?.text || "")
     setType(question?.type || "SINGLE_CHOICE")
-    setCategory(question?.category || "SUMMIT")
+    setCategory(question?.category || "PRODUCTION")
+    setSubcategory(question?.subcategory || undefined)
+    setDevelopOthers(question?.developOthers || false)
     setOrder(question?.order ?? "")
     setWeight(question?.weight ?? "")
     setOptions(
@@ -78,7 +82,13 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
         text,
         type,
         category,
+        developOthers,
         options: options.map((o) => ({ text: o.text, value: typeof o.value === 'number' ? o.value : undefined, isKey: typeof o.isKey === 'boolean' ? o.isKey : undefined })),
+      }
+
+      // Ajouter subcategory seulement si category est PINNACLE
+      if (category === 'PINNACLE' && subcategory) {
+        payload.subcategory = subcategory;
       }
 
       // N'envoyer order que s'il a une valeur
@@ -122,6 +132,8 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     text,   
     type,
     category,
+    subcategory,
+    developOthers,
     order,
     weight,
     options,
@@ -131,6 +143,8 @@ export const useUpdateQuestion = (question: any, onSaved?: () => void) => {
     setText,
     setType,
     setCategory,
+    setSubcategory,
+    setDevelopOthers,
     setOrder,
     setWeight,
     setOptions,

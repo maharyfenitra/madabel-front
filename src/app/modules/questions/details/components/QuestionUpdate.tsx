@@ -19,6 +19,8 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     text,
     type,
     category,
+    subcategory,
+    developOthers,
     order,
     weight,
     options,
@@ -28,6 +30,8 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
     setText,
     setType,
     setCategory,
+    setSubcategory,
+    setDevelopOthers,
     setOrder,
     setWeight,
     setOptions,
@@ -71,16 +75,47 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
           <Label className="text-sm">Catégorie</Label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              if (e.target.value !== 'PINNACLE') {
+                setSubcategory(undefined);
+              }
+            }}
             className="w-full rounded-md border px-2 py-1"
           >
             <option value="POSITION">Position</option>
             <option value="PERMISSION">Permission</option>
             <option value="PRODUCTION">Production</option>
-            <option value="DEVELOPMENT_OF_OTHERS">Développement des autres</option>
-            <option value="SUMMIT">Sommet</option>
+            <option value="PINNACLE">Pinnacle</option>
           </select>
         </div>
+      </div>
+
+      {category === 'PINNACLE' && (
+        <div>
+          <Label className="text-sm">Sous-catégorie Pinnacle</Label>
+          <select
+            value={subcategory || ''}
+            onChange={(e) => setSubcategory(e.target.value || undefined)}
+            className="w-full rounded-md border px-2 py-1"
+          >
+            <option value="">Sélectionner une sous-catégorie</option>
+            <option value="SOI">Pinnacle-Soi</option>
+            <option value="AUTRES">Pinnacle-Autres</option>
+          </select>
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={developOthers}
+            onChange={(e) => setDevelopOthers(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+          />
+          <span>Développement des autres</span>
+        </label>
       </div>
 
       <div className="grid grid-cols-2 gap-2">

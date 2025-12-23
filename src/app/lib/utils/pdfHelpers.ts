@@ -1,11 +1,14 @@
 /**
  * Formate un score numérique pour l'affichage dans le PDF
+ * @param score - Le score à formater (peut être null ou undefined)
+ * @param decimals - Nombre de décimales (par défaut 1)
+ * @returns Le score formaté ou '0.0' si invalide
  */
-export function formatScore(score: number | null | undefined): string {
+export function formatScore(score: number | null | undefined, decimals: number = 1): string {
   if (score === null || score === undefined || isNaN(score)) {
     return '0.0';
   }
-  return score.toFixed(1);
+  return Number(score).toFixed(decimals);
 }
 
 /**
