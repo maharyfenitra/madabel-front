@@ -9,7 +9,8 @@ export function addPageHeader(
   pdf: jsPDF,
   logoCouleursDataUrl: string,
   pageNumber: number,
-  pageWidth: number
+  pageWidth: number,
+  candidatName?: string
 ): void {
   // Fond blanc
   pdf.setFillColor(...PDF_COLORS.WHITE);
@@ -27,7 +28,8 @@ export function addPageHeader(
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text(`Nom du candidat au test P ${pageNumber}`, pageWidth - 45, 20, { align: 'center' });
+  const displayName = candidatName || 'Nom du candidat';
+  pdf.text(`${displayName} P ${pageNumber}`, pageWidth - 45, 20, { align: 'center' });
 }
 
 /**
@@ -71,13 +73,14 @@ export function createCoverPage(
     }
   }
   
-  // "Nom du candidat au test !" en jaune en haut à droite
+  // Nom du candidat en jaune en haut à droite
   pdf.setFillColor(255, 255, 0);
   pdf.rect(pageWidth - 75, 15, 55, 10, 'F');
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('Nom du candidat au test ?', pageWidth - 47.5, 21, { align: 'center' });
+  const candidatDisplayNameHeader = data.candidatName || 'Nom du candidat';
+  pdf.text(candidatDisplayNameHeader, pageWidth - 47.5, 21, { align: 'center' });
   
   // Cadre gris foncé avec "Prepared for" et nom du candidat
   pdf.setFillColor(...PDF_COLORS.BLUE_GREY);
@@ -146,7 +149,8 @@ export function createTransitionPage(
   pdf: jsPDF,
   logoCouleursDataUrl: string,
   pageWidth: number,
-  pageHeight: number
+  pageHeight: number,
+  candidatName?: string
 ): void {
   pdf.addPage();
   
@@ -165,7 +169,8 @@ export function createTransitionPage(
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('Nom du candidat au test P 2', pageWidth - 47.5, 21, { align: 'center' });
+  const displayName = candidatName || 'Nom du candidat';
+  pdf.text(`${displayName} P 2`, pageWidth - 47.5, 21, { align: 'center' });
   
   // Bas de page
   pdf.setFontSize(10);
@@ -182,7 +187,8 @@ export function createIntroductionPage(
   logoDataUrl: string,
   pageWidth: number,
   pageHeight: number,
-  margin: number
+  margin: number,
+  candidatName?: string
 ): void {
   pdf.addPage();
   
@@ -201,7 +207,8 @@ export function createIntroductionPage(
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('Nom du candidat au test P 3', pageWidth - 47.5, 21, { align: 'center' });
+  const displayName = candidatName || 'Nom du candidat';
+  pdf.text(`${displayName} P 3`, pageWidth - 47.5, 21, { align: 'center' });
   
   let yPosition = 50;
   
@@ -296,7 +303,8 @@ export function createFormatPage(
   logoCouleursDataUrl: string,
   pageWidth: number,
   pageHeight: number,
-  margin: number
+  margin: number,
+  candidatName?: string
 ): void {
   pdf.addPage();
   
@@ -315,7 +323,8 @@ export function createFormatPage(
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text('Nom du candidat au test P 4', pageWidth - 45, 20, { align: 'center' });
+  const displayName = candidatName || 'Nom du candidat';
+  pdf.text(`${displayName} P 4`, pageWidth - 45, 20, { align: 'center' });
   
   let yPosition = 50;
   
@@ -398,7 +407,8 @@ export function createConclusionPage(
   logoCouleursDataUrl: string,
   pageWidth: number,
   pageHeight: number,
-  margin: number
+  margin: number,
+  candidatName?: string
 ): void {
   pdf.addPage();
   
@@ -418,7 +428,8 @@ export function createConclusionPage(
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text(`Nom du candidat au test P ${conclusionPage}`, pageWidth - 45, 20, { align: 'center' });
+  const displayName = candidatName || 'Nom du candidat';
+  pdf.text(`${displayName} P ${conclusionPage}`, pageWidth - 45, 20, { align: 'center' });
   
   let yPosition = 50;
 

@@ -106,10 +106,16 @@ export default function ReportsPage() {
       
       const reportData = await response.json();
       
+      // Trouver le nom du candidat parmi les participants
+      const candidatParticipant = reportData.evaluation?.participants?.find(
+        (p: any) => p.participantRole === 'CANDIDAT'
+      );
+      const candidatName = candidatParticipant?.user?.name || undefined;
+      
       // Générer le PDF
       await generateReportPDF({
         evaluationRef: ref,
-        candidatName: reportData.candidat?.name,
+        candidatName: candidatName,
         deadline: reportData.evaluation?.deadline || reportData.deadline,
         report: reportData.report,
       });

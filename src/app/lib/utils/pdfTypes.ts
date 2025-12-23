@@ -4,6 +4,8 @@ export type CategoryReport = {
     questionId: number;
     questionText: string;
     questionType: string;
+    category?: string;
+    subcategory?: string | null;
     overallAverage: number | null;
     averagesByEvaluatorType: Record<string, number>;
     totalEvaluators: number;

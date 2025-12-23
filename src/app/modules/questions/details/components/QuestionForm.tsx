@@ -16,7 +16,9 @@ type Props = {
 const QuestionForm = ({ onCreate }: Props) => {
   const [text, setText] = useState('');
   const [type, setType] = useState('SINGLE_CHOICE');
-  const [category, setCategory] = useState('SUMMIT');
+  const [category, setCategory] = useState('PRODUCTION');
+  const [subcategory, setSubcategory] = useState<string | undefined>(undefined);
+  const [developOthers, setDevelopOthers] = useState(false);
   const [options, setOptions] = useState<{ text: string; value?: number; isKey?: boolean; id?: string }[]>([]);
   const [optText, setOptText] = useState('');
   const [optValue, setOptValue] = useState('');
@@ -52,9 +54,18 @@ const QuestionForm = ({ onCreate }: Props) => {
       e.preventDefault();
     }
     if (!text.trim()) return;
-    onCreate({ text, type, category, options });
+    onCreate({ 
+      text, 
+      type, 
+      category, 
+      subcategory: category === 'PINNACLE' ? subcategory : undefined, 
+      developOthers,
+      options 
+    });
     setText('');
-    setCategory('SUMMIT');
+    setCategory('PRODUCTION');
+    setSubcategory(undefined);
+    setDevelopOthers(false);
     setOptions([]);
     setOptText('');
     setOptValue('');
@@ -107,7 +118,7 @@ const QuestionForm = ({ onCreate }: Props) => {
           Catégorie de question
         </MadaLabel>
         {mounted ? (
-          <Select value={category} onValueChange={(val) => setCategory(String(val))}>
+          <Select value={category} onValueChange={(val) => { setCategory(String(val)); if (val !== 'PINNACLE') setSubcategory(undefined); }}>
             <SelectTrigger className="h-11">
               <SelectValue placeholder="Sélectionner la catégorie" />
             </SelectTrigger>
@@ -115,15 +126,55 @@ const QuestionForm = ({ onCreate }: Props) => {
               <SelectItem value="POSITION">Position (Compétences individuelles)</SelectItem>
               <SelectItem value="PERMISSION">Permission (Autorisations & accès)</SelectItem>
               <SelectItem value="PRODUCTION">Production (Performance & résultats)</SelectItem>
-              <SelectItem value="DEVELOPMENT_OF_OTHERS">Développement des autres (Mentorat & formation)</SelectItem>
-              <SelectItem value="SUMMIT">Sommet (Vision stratégique)</SelectItem>
+              <SelectItem value="PINNACLE">Pinnacle (Vision stratégique)</SelectItem>
             </SelectContent>
           </Select>
         ) : (
           <div className="h-11 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 flex items-center text-sm text-gray-500">
-            Sommet
+            Production
           </div>
         )}
+      </div>
+
+      {category === 'PINNACLE' && (
+        <div className="space-y-2">
+          <MadaLabel htmlFor="question-subcategory" className="flex items-center gap-2">
+            <HelpCircle className="w-4 h-4" />
+            Sous-catégorie Pinnacle
+          </MadaLabel>
+          {mounted ? (
+            <Select value={subcategory || ''} onValueChange={(val) => setSubcategory(val)}>
+              <SelectTrigger className="h-11">
+                <SelectValue placeholder="Sélectionner la sous-catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="SOI">Pinnacle-Soi</SelectItem>
+                <SelectItem value="AUTRES">Pinnacle-Autres</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="h-11 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 flex items-center text-sm text-gray-500">
+              Sélectionner la sous-catégorie
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={developOthers}
+              onChange={(e) => setDevelopOthers(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+            />
+            <span>Développement des autres</span>
+          </label>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Cochez cette case si cette question évalue le développement des autres leaders
+        </p>
       </div>
 
       {(type === 'SINGLE_CHOICE' || type === 'MULTIPLE_CHOICE') && (
