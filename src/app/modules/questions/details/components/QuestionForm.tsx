@@ -127,6 +127,7 @@ const QuestionForm = ({ onCreate }: Props) => {
               <SelectItem value="PERMISSION">Permission (Autorisations & accès)</SelectItem>
               <SelectItem value="PRODUCTION">Production (Performance & résultats)</SelectItem>
               <SelectItem value="PINNACLE">Pinnacle (Vision stratégique)</SelectItem>
+              <SelectItem value="AUTRE">Autre (Hors catégories)</SelectItem>
             </SelectContent>
           </Select>
         ) : (

@@ -22,9 +22,7 @@ export function addPageHeader(
     pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
   }
   
-  // Boîte jaune en haut à droite avec numéro de page
-  pdf.setFillColor(...PDF_COLORS.YELLOW_BOX);
-  pdf.roundedRect(pageWidth - 80, 10, 70, 15, 3, 3, 'F');
+  // Nom du candidat et numéro de page en haut à droite (sans fond)
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);
@@ -73,9 +71,7 @@ export function createCoverPage(
     }
   }
   
-  // Nom du candidat en jaune en haut à droite
-  pdf.setFillColor(255, 255, 0);
-  pdf.rect(pageWidth - 75, 15, 55, 10, 'F');
+  // Nom du candidat en haut à droite (sans fond)
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
@@ -163,9 +159,7 @@ export function createTransitionPage(
     pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
   }
   
-  // Boîte jaune en haut à droite
-  pdf.setFillColor(255, 255, 0);
-  pdf.rect(pageWidth - 75, 15, 55, 10, 'F');
+  // Nom du candidat en haut à droite (sans fond)
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
@@ -201,9 +195,7 @@ export function createIntroductionPage(
     pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
   }
   
-  // Boîte jaune en haut à droite
-  pdf.setFillColor(255, 255, 0);
-  pdf.rect(pageWidth - 75, 15, 55, 10, 'F');
+  // Nom du candidat en haut à droite (sans fond)
   pdf.setTextColor(...PDF_COLORS.BLACK);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'bold');
@@ -317,9 +309,7 @@ export function createFormatPage(
     pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
   }
   
-  // Boîte jaune en haut à droite avec numéro de page
-  pdf.setFillColor(...PDF_COLORS.YELLOW_BOX);
-  pdf.roundedRect(pageWidth - 80, 10, 70, 15, 3, 3, 'F');
+  // Nom du candidat en haut à droite (sans fond)
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);
@@ -421,10 +411,8 @@ export function createConclusionPage(
     pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
   }
   
-  // Boîte jaune en haut à droite avec numéro de page
+  // Nom du candidat en haut à droite (sans fond)
   const conclusionPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
-  pdf.setFillColor(...PDF_COLORS.YELLOW_BOX);
-  pdf.roundedRect(pageWidth - 80, 10, 70, 15, 3, 3, 'F');
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...PDF_COLORS.BLACK);

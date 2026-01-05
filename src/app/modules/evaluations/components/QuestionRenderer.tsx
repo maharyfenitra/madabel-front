@@ -26,8 +26,8 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
 
   if (qType === 'TEXT') {
     return (
-      <Card className="border-l-4 border-l-yellow-500 shadow-sm">
-        <CardContent className="p-6">
+      <Card className="border-l-4 border-l-yellow-500 shadow-sm h-full flex flex-col">
+        <CardContent className="p-6 flex-1 flex flex-col">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
               {question.text}
@@ -50,8 +50,8 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
   if (qType === 'SCALE') {
     const numeric = typeof value === 'number' ? value : 0;
     return (
-      <Card className="border-l-4 border-l-blue-500 shadow-sm">
-        <CardContent className="p-6">
+      <Card className="border-l-4 border-l-blue-500 shadow-sm h-full flex flex-col">
+        <CardContent className="p-6 flex-1 flex flex-col">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
               {question.text}
@@ -106,8 +106,8 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
     };
 
     return (
-      <Card className="border-l-4 border-l-green-500 shadow-sm">
-        <CardContent className="p-6">
+      <Card className="border-l-4 border-l-green-500 shadow-sm h-full flex flex-col">
+        <CardContent className="p-6 flex-1 flex flex-col">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
               {question.text}
@@ -137,8 +137,8 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
   // SINGLE_CHOICE default
   const selected = typeof value === 'number' ? value : null;
   return (
-    <Card className="border-l-4 border-l-yellow-500 shadow-sm">
-      <CardContent className="p-6">
+    <Card className="border-l-4 border-l-yellow-500 shadow-sm h-full flex flex-col">
+      <CardContent className="p-6 flex-1 flex flex-col">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-relaxed">
             {question.text}

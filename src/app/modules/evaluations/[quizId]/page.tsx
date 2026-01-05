@@ -37,6 +37,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 export default function Page() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -120,23 +121,40 @@ export default function Page() {
         </Button>
       </Link>
 
-      <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-yellow-500" />
+      {/* En-tête avec logo et titre */}
+      <div className="mb-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Image 
+              src="/Logo-couleurs-Madabel.webp" 
+              alt="Logo Madabel" 
+              width={120} 
+              height={48}
+              className="object-contain"
+            />
+            <div className="h-12 w-px bg-gray-300 dark:bg-gray-700" />
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {quiz.title}
-              </CardTitle>
-              <CardDescription className="mt-1.5 text-gray-600 dark:text-gray-400">
-                {quiz.description}
-              </CardDescription>
+              </h1>
+              {quiz.description && (
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {quiz.description}
+                </p>
+              )}
             </div>
           </div>
-        </CardHeader>
-        <Separator />
+          {totalPages > 1 && (
+            <Badge variant="outline" className="text-sm">
+              Page {currentPage} / {totalPages}
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
         <CardContent className="p-6">
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {quiz.questions?.map((q: any, index: number) => (
               <div key={q.id}>
                 <QuestionRenderer

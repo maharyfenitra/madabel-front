@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import type { CategoryInfo } from './pdfTypes';
 import { PDF_COLORS } from './pdfStyles';

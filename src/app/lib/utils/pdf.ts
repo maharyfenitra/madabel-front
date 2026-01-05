@@ -11,6 +11,9 @@ import {
 } from './pdfPages';
 import { createCategoryPage } from './pdfCategoryPage';
 import { createPinnacleSummaryPage } from './pdfPinnacleSummary';
+import { createOpenQuestionsPage } from './pdfOpenQuestions';
+import { createReflectionPage } from './pdfReflectionPage';
+import { createLeadershipSummaryPage } from './pdfLeadershipSummary';
 
 /**
  * GÃ©nÃ¨re un PDF Ã  partir des donnÃ©es du rapport d'Ã©valuation
@@ -49,7 +52,8 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
   createFormatPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
 
   // PAGES 5+ - Catégories - TOUJOURS afficher toutes les catégories dans l'ordre fixe
-  const reportCategories = data.report || [];
+  // Filtrer la catégorie AUTRE qui ne doit pas apparaître dans le PDF
+  const reportCategories = (data.report || []).filter(c => c.category !== 'AUTRE');
   
   // Liste fixe des catégories à afficher dans l'ordre
   const FIXED_CATEGORIES = ['PRODUCTION', 'PERMISSION', 'PINNACLE', 'POSITION'];
@@ -148,68 +152,78 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
       createCategoryPage(pdf, soiCategory, soiInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
       console.log('🔵 Pinnacle-Soi detailed page created');
     }
-    
-    // Après POSITION, créer la page détaillée Pinnacle-Autres
-    if (categoryName === 'POSITION') {
-      // Trouver la catégorie PINNACLE pour extraire les questions AUTRES
-      const pinnacleCategory = reportCategories.find(c => c.category === 'PINNACLE') || {
-        category: 'PINNACLE',
-        questions: []
-      };
-      
-      const autresQuestionsDetailed = pinnacleCategory.questions.filter(q => q.subcategory === 'AUTRES');
-      console.log('🔵 Filtered AUTRES questions:', autresQuestionsDetailed.length);
-
-      // Page détaillée pour Pinnacle-Autres (toujours créée)
-      console.log('🔵 Creating Pinnacle-Autres detailed page after POSITION...');
-      const autresCategory = {
-        category: 'Pinnacle-Autres',
-        questions: autresQuestionsDetailed,
-      };
-      const autresInfo = {
-        name: 'Pinnacle-Autres',
-        color: [33, 150, 243] as [number, number, number],
-        textColor: [255, 255, 255] as [number, number, number],
-      };
-      createCategoryPage(pdf, autresCategory, autresInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
-      console.log('🔵 Pinnacle-Autres detailed page created');
-      
-      // Créer la page "Développement des autres" avec toutes les questions où developOthers === true
-      console.log('🔵 Creating Développement des autres page...');
-      
-      // Collecter toutes les questions avec developOthers === true de toutes les catégories
-      const developOthersQuestions: any[] = [];
-      reportCategories.forEach(cat => {
-        if (cat.questions) {
-          const filteredQuestions = cat.questions.filter((q: any) => q.developOthers === true);
-          // Ajouter la catégorie d'origine à chaque question
-          const questionsWithCategory = filteredQuestions.map((q: any) => ({
-            ...q,
-            category: cat.category, // Catégorie d'origine
-          }));
-          developOthersQuestions.push(...questionsWithCategory);
-        }
-      });
-      
-      console.log('🔵 Total developOthers questions:', developOthersQuestions.length);
-      
-      // Créer la page avec une couleur violette distincte
-      const developOthersCategory = {
-        category: 'DÉVELOPPEMENT DES AUTRES',
-        questions: developOthersQuestions,
-      };
-      const developOthersInfo = {
-        name: 'DÉVELOPPEMENT DES AUTRES',
-        color: [103, 58, 183] as [number, number, number], // Violet/Indigo
-        textColor: [255, 255, 255] as [number, number, number],
-      };
-      createCategoryPage(pdf, developOthersCategory, developOthersInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
-      console.log('🔵 Développement des autres page created');
-    }
   }
 
-  // DERNIÃˆRE PAGE - Conclusion
-  createConclusionPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
+  // Créer les pages finales (toujours affichées, sans condition)
+  
+  // Créer la page détaillée Pinnacle-Autres (toujours affichée)
+  console.log('🔵 Creating Pinnacle-Autres detailed page...');
+  const pinnacleCategory = reportCategories.find(c => c.category === 'PINNACLE') || {
+    category: 'PINNACLE',
+    questions: []
+  };
+  
+  const autresQuestionsDetailed = pinnacleCategory.questions.filter(q => q.subcategory === 'AUTRES');
+  console.log('🔵 Filtered AUTRES questions:', autresQuestionsDetailed.length);
+
+  const autresCategory = {
+    category: 'Pinnacle-Autres',
+    questions: autresQuestionsDetailed,
+  };
+  const autresInfo = {
+    name: 'Pinnacle-Autres',
+    color: [33, 150, 243] as [number, number, number],
+    textColor: [255, 255, 255] as [number, number, number],
+  };
+  createCategoryPage(pdf, autresCategory, autresInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
+  console.log('🔵 Pinnacle-Autres detailed page created');
+  
+  // Créer la page "Développement des autres" avec toutes les questions où developOthers === true
+  console.log('🔵 Creating Développement des autres page...');
+  
+  // Collecter toutes les questions avec developOthers === true de toutes les catégories
+  const developOthersQuestions: any[] = [];
+  reportCategories.forEach(cat => {
+    if (cat.questions) {
+      const filteredQuestions = cat.questions.filter((q: any) => q.developOthers === true);
+      // Ajouter la catégorie d'origine à chaque question
+      const questionsWithCategory = filteredQuestions.map((q: any) => ({
+        ...q,
+        category: cat.category, // Catégorie d'origine
+      }));
+      developOthersQuestions.push(...questionsWithCategory);
+    }
+  });
+  
+  console.log('🔵 Total developOthers questions:', developOthersQuestions.length);
+  
+  // Créer la page avec une couleur violette distincte
+  const developOthersCategory = {
+    category: 'DÉVELOPPEMENT DES AUTRES',
+    questions: developOthersQuestions,
+  };
+  const developOthersInfo = {
+    name: 'DÉVELOPPEMENT DES AUTRES',
+    color: [103, 58, 183] as [number, number, number], // Violet/Indigo
+    textColor: [255, 255, 255] as [number, number, number],
+  };
+  createCategoryPage(pdf, developOthersCategory, developOthersInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
+  console.log('🔵 Développement des autres page created');
+  
+  // Créer la page des questions ouvertes
+  console.log('🔵 Creating Questions ouvertes page...');
+  createOpenQuestionsPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
+  console.log('🔵 Questions ouvertes page created');
+  
+  // Créer la page de réflexion
+  console.log('🔵 Creating Reflection page...');
+  createReflectionPage(pdf, reportCategories, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
+  console.log('🔵 Reflection page created');
+  
+  // Créer la page de résumé des attributs de leadership (à la fin)
+  console.log('🔵 Creating Leadership Summary page...');
+  createLeadershipSummaryPage(pdf, reportCategories, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
+  console.log('🔵 Leadership Summary page created');
 
   // TÃ©lÃ©charger le PDF
   const fileName = `rapport-360-${data.evaluationRef || 'evaluation'}.pdf`;

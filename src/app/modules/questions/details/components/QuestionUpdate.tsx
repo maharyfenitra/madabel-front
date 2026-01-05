@@ -87,6 +87,7 @@ const QuestionUpdate = ({ question, onSaved }: Props) => {
             <option value="PERMISSION">Permission</option>
             <option value="PRODUCTION">Production</option>
             <option value="PINNACLE">Pinnacle</option>
+            <option value="AUTRE">Autre</option>
           </select>
         </div>
       </div>

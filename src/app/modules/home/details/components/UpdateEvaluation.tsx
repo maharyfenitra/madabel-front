@@ -38,6 +38,11 @@ export function UpdateEvaluation() {
   };
 
   const lastCompletedDate = getLastCompletedDate();
+  
+  // Vérifier si au moins un participant a commencé ou complété l'évaluation
+  const hasStartedEvaluations = participants && participants.some((p: any) => 
+    p.completedAt || (p.answers && p.answers.length > 0)
+  );
 
   return (
     <div className="space-y-6">
@@ -133,21 +138,33 @@ export function UpdateEvaluation() {
                   <FileText className="w-4 h-4" />
                   Quiz associé
                 </MadaLabel>
-                <select
-                  id="quizId"
-                  name="quizId"
-                  value={formData.quizId ?? ""}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                    const val = e.target.value === "" ? null : Number(e.target.value)
-                    handleChange("quizId", val)
-                  }}
-                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-yellow-400"
-                >
-                  <option value="">— Aucun —</option>
-                  {quizzes?.map?.((q: any) => (
-                    <option key={q.id} value={q.id}>{q.title}</option>
-                  ))}
-                </select>
+                {hasStartedEvaluations ? (
+                  <div className="space-y-2">
+                    <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-sm text-gray-700 dark:text-gray-300">
+                      {quizzes?.find((q: any) => q.id === formData.quizId)?.title || "Quiz non sélectionné"}
+                    </div>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                      <span className="font-semibold">⚠️</span>
+                      Le quiz ne peut plus être modifié car des participants ont déjà commencé l'évaluation
+                    </p>
+                  </div>
+                ) : (
+                  <select
+                    id="quizId"
+                    name="quizId"
+                    value={formData.quizId ?? ""}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                      const val = e.target.value === "" ? null : Number(e.target.value)
+                      handleChange("quizId", val)
+                    }}
+                    className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  >
+                    <option value="">— Aucun —</option>
+                    {quizzes?.map?.((q: any) => (
+                      <option key={q.id} value={q.id}>{q.title}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
           </CardContent>
