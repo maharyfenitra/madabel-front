@@ -44,12 +44,18 @@ const QuizDetail = ({ id }: Props) => {
   const router = useRouter();
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   const {
     handleSave: handleSaveQuiz,
     title,
     setTitle,
-  } = useUpdateQuiz(quiz, () => setIsEditingTitle(false));
+    description,
+    setDescription,
+  } = useUpdateQuiz(quiz, () => {
+    setIsEditingTitle(false);
+    setIsEditingDescription(false);
+  });
 
   const handleAddQuestion = async (q: any) => {
     await createQuestion(q);
@@ -131,10 +137,62 @@ const QuizDetail = ({ id }: Props) => {
                   </div>
                 )}
               </div>
-              {quiz?.description && (
-                <CardDescription className="text-base text-gray-600 dark:text-gray-400 mt-2">
-                  {quiz?.description}
-                </CardDescription>
+              {isEditingDescription ? (
+                <div className="mt-2 space-y-2">
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full min-h-[80px] rounded-md border-2 border-yellow-500 px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-yellow-500 resize-vertical"
+                    placeholder="Description du questionnaire..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setIsEditingDescription(false);
+                        setDescription(quiz?.description || "");
+                      }
+                    }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={handleSaveQuiz}
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Check className="w-4 h-4 mr-1" />
+                      Enregistrer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingDescription(false);
+                        setDescription(quiz?.description || "");
+                      }}
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Annuler
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 flex items-start gap-2">
+                  {description ? (
+                    <CardDescription className="text-base text-gray-600 dark:text-gray-400 flex-1">
+                      {description}
+                    </CardDescription>
+                  ) : (
+                    <CardDescription className="text-base text-gray-400 dark:text-gray-500 italic flex-1">
+                      Aucune description
+                    </CardDescription>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingDescription(true)}
+                    className="hover:bg-yellow-100 dark:hover:bg-yellow-900/20"
+                  >
+                    <Edit className="w-4 h-4 text-yellow-500" />
+                  </Button>
+                </div>
               )}
             </div>
             <Badge

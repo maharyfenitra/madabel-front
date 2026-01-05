@@ -18,7 +18,7 @@ export const useSubmitAnswers = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const questionsPerPage = 5;
+  const questionsPerPage = 8;
 
   const { data: quizData, isLoading } = useCandidateQuiz(
     quizId,

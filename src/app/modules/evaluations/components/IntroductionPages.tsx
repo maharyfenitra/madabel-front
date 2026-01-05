@@ -82,10 +82,6 @@ export default function IntroductionPages({
                   ; cependant, vos commentaires ouverts seront anonymement combinés avec tous les autres.
                 </p>
               </div>
-
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                (Bouton CONTINUER qui envoi vers la page suivante).
-              </p>
             </div>
           )}
 
@@ -193,10 +189,6 @@ export default function IntroductionPages({
               <p className="text-base text-gray-700 dark:text-gray-300">
                 Ensuite cliquez sur CONTINUER pour passer à la première page de notation.
               </p>
-
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                (Bouton CONTINUER qui envoi vers la page suivante).
-              </p>
             </div>
           )}
 
@@ -227,10 +219,6 @@ export default function IntroductionPages({
                 la mention{" "}
                 <span className="font-semibold italic">"Non observé"</span> car le but est de pouvoir
                 lui donner le meilleur retour.
-              </p>
-
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                (Bouton CONTINUER qui envoi vers la page suivante).
               </p>
             </div>
           )}

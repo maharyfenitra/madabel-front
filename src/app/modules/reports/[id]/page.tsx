@@ -6,8 +6,10 @@ import { useCurrentUser } from "@/app/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Calendar, FileText, BarChart3, TrendingUp } from "lucide-react";
+import { ArrowLeft, User, Calendar, FileText, BarChart3, TrendingUp, Download, Mail, CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
+import { generateReportPDF } from "@/app/lib/utils/pdf";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -149,6 +151,23 @@ export default function ReportDetailPage() {
 
   const report = reportData?.report || [];
 
+  // Fonction pour télécharger le PDF
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info("Génération du PDF en cours...");
+      await generateReportPDF({
+        evaluationRef: evaluation.ref,
+        candidatName: reportData?.candidateName || "Candidat",
+        deadline: evaluation.deadline,
+        report: report,
+      });
+      toast.success("PDF téléchargé avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -160,17 +179,99 @@ export default function ReportDetailPage() {
           </Button>
         </Link>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Rapport d'Évaluation
+              Rapport d'Évaluation 360°
             </h1>
             <p className="text-gray-600">Référence: {evaluation.ref}</p>
+            {reportData?.candidateName && (
+              <p className="text-lg font-semibold text-blue-600 mt-1">
+                Candidat: {reportData.candidateName}
+              </p>
+            )}
           </div>
-          <Badge variant={evaluation.isCompleted ? "default" : "secondary"}>
-            {evaluation.isCompleted ? "Terminée" : "En cours"}
-          </Badge>
+          <div className="flex gap-3">
+            <Badge variant={evaluation.isCompleted ? "default" : "secondary"} className="h-fit">
+              {evaluation.isCompleted ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-1" />
+                  Terminée
+                </>
+              ) : (
+                <>
+                  <XCircle className="w-4 h-4 mr-1" />
+                  En cours
+                </>
+              )}
+            </Badge>
+            <Button
+              onClick={handleDownloadPDF}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Télécharger le PDF
+            </Button>
+          </div>
         </div>
+      </div>
+
+      {/* Statistiques globales */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Catégories</p>
+                <p className="text-2xl font-bold text-gray-900">{report.length}</p>
+              </div>
+              <BarChart3 className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Questions</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {report.reduce((sum: number, cat: CategoryReport) => sum + cat.questions.length, 0)}
+                </p>
+              </div>
+              <FileText className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Évaluateurs</p>
+                <p className="text-2xl font-bold text-gray-900">{evaluators.length}</p>
+              </div>
+              <User className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Moyenne globale</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {report.length > 0 ? (
+                    (
+                      report.reduce((sum: number, cat: CategoryReport) => 
+                        sum + cat.questions.reduce((qSum: number, q: QuestionReport) => qSum + (q.overallAverage || 0), 0) / cat.questions.length
+                      , 0) / report.length
+                    ).toFixed(1)
+                  ) : "N/A"}
+                </p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-yellow-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Informations générales */}
@@ -182,14 +283,29 @@ export default function ReportDetailPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             <div>
               <div className="flex items-center text-sm text-gray-600 mb-2">
                 <Calendar className="w-4 h-4 mr-1" />
                 Date limite
               </div>
               <p className="font-medium">
-                {new Date(evaluation.deadline).toLocaleDateString("fr-FR")}
+                {new Date(evaluation.deadline).toLocaleDateString("fr-FR", {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center text-sm text-gray-600 mb-2">
+                <Calendar className="w-4 h-4 mr-1" />
+                Date de création
+              </div>
+              <p className="font-medium">
+                {new Date(evaluation.createdAt).toLocaleDateString("fr-FR")}
               </p>
             </div>
 
@@ -198,11 +314,17 @@ export default function ReportDetailPage() {
                 <User className="w-4 h-4 mr-1" />
                 Évaluateurs ({evaluators.length})
               </div>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {evaluators.map((evaluator: Evaluation['participants'][0]) => (
-                  <p key={evaluator.id} className="font-medium">
-                    {evaluator.user.name}
-                  </p>
+                  <div key={evaluator.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <div>
+                      <p className="font-medium">{evaluator.user.name}</p>
+                      <p className="text-xs text-gray-500">{evaluator.user.email}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {evaluator.participantRole}
+                    </Badge>
+                  </div>
                 ))}
               </div>
             </div>
