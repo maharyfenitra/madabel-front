@@ -25,6 +25,9 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
   const qType = question.type;
 
   if (qType === 'TEXT') {
+    const charCount = (value || '').length;
+    const maxChars = 2000;
+    
     return (
       <Card className="border-l-4 border-l-yellow-500 shadow-sm h-full flex flex-col">
         <CardContent className="p-6 flex-1 flex flex-col">
@@ -36,10 +39,20 @@ export default function QuestionRenderer({ question, value, onChange, disabled =
               <textarea
                 className="w-full min-h-[120px] rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-vertical disabled:opacity-60 disabled:cursor-not-allowed"
                 value={value || ''}
-                onChange={(e) => onChange(question.id, e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value.length <= maxChars) {
+                    onChange(question.id, e.target.value);
+                  }
+                }}
                 placeholder="Tapez votre réponse ici..."
                 disabled={disabled}
+                maxLength={maxChars}
               />
+              <div className="mt-2 text-right">
+                <span className={`text-sm ${charCount > maxChars * 0.9 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {charCount} / {maxChars} caractères
+                </span>
+              </div>
             </div>
           </div>
         </CardContent>
