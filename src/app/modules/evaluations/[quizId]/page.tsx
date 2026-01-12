@@ -1,6 +1,7 @@
 "use client";
 import QuestionRenderer from "../components/QuestionRenderer";
 import IntroductionPages from "../components/IntroductionPages";
+import OpenQuestionsIntroPage from "../components/OpenQuestionsIntroPage";
 import useSubmitAnswers from "../hooks/useSubmitAnswers";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -42,6 +43,8 @@ import Image from "next/image";
 export default function Page() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [showIntroduction, setShowIntroduction] = useState(true);
+  const [showOpenQuestionsIntro, setShowOpenQuestionsIntro] = useState(false);
+  const [hasShownOpenQuestionsIntro, setHasShownOpenQuestionsIntro] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const evaluationId = searchParams.get("evaluationId") || searchParams.get("e");
@@ -82,6 +85,18 @@ export default function Page() {
     }
   }, [completedAt, answersMap]);
 
+  // Détecter si la page actuelle contient des questions AUTRE et afficher l'intro si nécessaire
+  useEffect(() => {
+    if (!quiz?.questions || showIntroduction || hasShownOpenQuestionsIntro) return;
+    
+    const hasAutreQuestions = quiz.questions.some((q: any) => q.category === 'AUTRE');
+    
+    if (hasAutreQuestions && !hasShownOpenQuestionsIntro) {
+      setShowOpenQuestionsIntro(true);
+      setHasShownOpenQuestionsIntro(true);
+    }
+  }, [quiz?.questions, showIntroduction, hasShownOpenQuestionsIntro]);
+
   const onConfirmSubmit = async () => {
     setConfirmDialogOpen(false); // Fermer le dialog immédiatement
     await handleSubmit();
@@ -93,6 +108,16 @@ export default function Page() {
   
   // Ne rien afficher pendant la redirection
   if (isCompleted) return <div>Redirection...</div>;
+
+  // Afficher la page d'introduction des questions ouvertes
+  if (showOpenQuestionsIntro) {
+    return (
+      <OpenQuestionsIntroPage
+        candidateName={quiz.candidateName || quiz.title || "le candidat"}
+        onContinue={() => setShowOpenQuestionsIntro(false)}
+      />
+    );
+  }
 
   // Afficher les pages d'introduction si nécessaire
   if (showIntroduction) {
@@ -162,31 +187,32 @@ export default function Page() {
                   value={answersMap[q.id]}
                   onChange={handleChange}
                 />
-                {index === (quiz.questions?.length || 0) - 1 &&
-                  currentPage === totalPages && (
-                    <div className="mt-6 flex justify-end">
-                      <Button
-                        onClick={() => setConfirmDialogOpen(true)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-black"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Soumission en cours...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Soumettre le questionnaire
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  )}
               </div>
             ))}
           </div>
+
+          {/* Bouton de soumission - en dehors de la grille */}
+          {currentPage === totalPages && (
+            <div className="mt-8 flex justify-center">
+              <Button
+                onClick={() => setConfirmDialogOpen(true)}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-6 text-lg font-semibold"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Soumission en cours...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Soumettre le questionnaire
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
