@@ -69,10 +69,6 @@ export default function IntroductionPages({
                 Merci pour votre temps.
               </p>
 
-              <p className="text-base text-gray-700 dark:text-gray-300">
-                Veuillez cliquer sur &lt; CONTINUER &gt;
-              </p>
-
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border-l-4 border-yellow-500">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   Note :

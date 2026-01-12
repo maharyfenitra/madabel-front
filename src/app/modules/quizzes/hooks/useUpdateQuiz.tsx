@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGenericMutation } from "@/app/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,15 @@ export const useUpdateQuiz = (quiz: any, onSaved?: () => void) => {
   const [title, setTitle] = useState<string>(quiz?.title || "");
   const [description, setDescription] = useState<string>(quiz?.description || "");
   const [isActive, setIsActive] = useState<boolean>(quiz?.isActive || false);
+
+  // Synchroniser les states locaux lorsque quiz change
+  useEffect(() => {
+    if (quiz) {
+      setTitle(quiz.title || "");
+      setDescription(quiz.description || "");
+      setIsActive(quiz.isActive || false);
+    }
+  }, [quiz]);
 
   const { mutateAsync: updateAsync } = useGenericMutation<any>(`/quizzes/${quiz?.id}`, "PUT");
 

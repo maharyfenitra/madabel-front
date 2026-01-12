@@ -109,7 +109,15 @@ export const useSubmitAnswers = () => {
       const onSaveSuccess = () => {
         if (isFinalSubmit) {
           toast.success("Évaluation complétée avec succès!");
-          router.push("/modules/evaluations/");
+          // Rediriger vers la page de succès avec le nom du candidat, isCandidate et evaluationId
+          const candidateName = quiz?.candidateName || quiz?.title || "le candidat";
+          const isCandidate = quiz?.isCandidate || false;
+          const params = new URLSearchParams({
+            candidateName: candidateName,
+            isCandidate: isCandidate.toString(),
+            evaluationId: evaluationId.toString()
+          });
+          router.push(`/modules/evaluations/${quizId}/success?${params.toString()}`);
         } else {
           // Ne pas afficher de toast pour les sauvegardes en brouillon
           // toast.success("Réponses enregistrées");

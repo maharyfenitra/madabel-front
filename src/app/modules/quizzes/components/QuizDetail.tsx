@@ -124,7 +124,7 @@ const QuizDetail = ({ id }: Props) => {
                 ) : (
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {quiz?.title || "Questionnaire"}
+                      {title || "Questionnaire"}
                     </CardTitle>
                     <Button
                       size="sm"
