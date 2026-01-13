@@ -78,7 +78,7 @@ export function createCoverPage(
   const candidatDisplayNameHeader = data.candidatName || 'Nom du candidat';
   pdf.text(candidatDisplayNameHeader, pageWidth - 47.5, 21, { align: 'center' });
   
-  // Cadre gris foncé avec "Prepared for" et nom du candidat
+  // Cadre gris foncé avec "Préparé pour" et nom du candidat
   pdf.setFillColor(...PDF_COLORS.BLUE_GREY);
   pdf.roundedRect(margin + 10, 50, pageWidth - 2 * (margin + 10), 35, 2, 2, 'F');
   
@@ -87,11 +87,11 @@ export function createCoverPage(
   pdf.setLineWidth(1);
   pdf.roundedRect(margin + 10, 50, pageWidth - 2 * (margin + 10), 35, 2, 2, 'S');
   
-  // Texte blanc "Prepared for"
+  // Texte blanc "Préparé pour"
   pdf.setTextColor(...PDF_COLORS.WHITE);
   pdf.setFontSize(14);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Prepared for', pageWidth / 2, 65, { align: 'center' });
+  pdf.text('Préparé pour', pageWidth / 2, 65, { align: 'center' });
   
   // Nom du candidat en blanc gras
   pdf.setFontSize(20);
@@ -112,13 +112,6 @@ export function createCoverPage(
       console.warn('Erreur logo EQ:', e);
     }
   }
-  
-  // Texte explicatif sous le logo
-  pdf.setFontSize(8);
-  pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text('Intelligence Émotionnelle (IE) : Confiance', margin, centerY + 50, { maxWidth: pageWidth - 2 * margin });
-  pdf.text('Donne des résultats : Cultive les relations : Développe les autres', margin, centerY + 56, { maxWidth: pageWidth - 2 * margin });
   
   // Date de création
   const currentDate = new Date().toLocaleDateString('fr-FR', {
