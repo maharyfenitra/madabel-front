@@ -52,7 +52,18 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
   createFormatPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
 
   // PAGES 5+ - Catégories - TOUJOURS afficher toutes les catégories dans l'ordre fixe
-  // Filtrer la catégorie AUTRE qui ne doit pas apparaître dans le PDF
+  // Sauvegarder la catégorie AUTRE avant de la filtrer pour les questions ouvertes
+  console.log('🔵 Total categories in data.report:', data.report.length);
+  console.log('🔵 Categories:', data.report.map((c: any) => c.category).join(', '));
+  
+  const autreCategory = (data.report || []).find(c => c.category === 'AUTRE');
+  console.log('🔵 Found AUTRE category:', autreCategory ? 'YES' : 'NO');
+  if (autreCategory) {
+    console.log('🔵 AUTRE category questions:', autreCategory.questions.length);
+    console.log('🔵 AUTRE questions types:', autreCategory.questions.map((q: any) => q.questionType).join(', '));
+  }
+  
+  // Filtrer la catégorie AUTRE qui ne doit pas apparaître dans les pages de catégories
   const reportCategories = (data.report || []).filter(c => c.category !== 'AUTRE');
   
   // Liste fixe des catégories à afficher dans l'ordre
@@ -210,9 +221,30 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
   createCategoryPage(pdf, developOthersCategory, developOthersInfo, logoCouleursDataUrl, pageWidth, pageHeight, margin, false, data.candidatName);
   console.log('🔵 Développement des autres page created');
   
-  // Créer la page des questions ouvertes
+  // Créer la page des questions ouvertes avec les questions AUTRE de type TEXT
   console.log('🔵 Creating Questions ouvertes page...');
-  createOpenQuestionsPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
+  
+  // Utiliser la catégorie AUTRE sauvegardée avant le filtrage
+  const openQuestions = autreCategory && autreCategory.questions 
+    ? autreCategory.questions
+        .filter((q: any) => {
+          console.log('🔵 Question type check:', q.questionType, 'TEXT?', q.questionType === 'TEXT');
+          return q.questionType === 'TEXT';
+        })
+        .map((q: any) => ({ 
+          text: q.questionText, 
+          type: q.questionType,
+          textAnswers: q.textAnswers || []
+        }))
+    : [];
+  
+  console.log('🔵 Found open questions (AUTRE + TEXT):', openQuestions.length);
+  if (openQuestions.length > 0) {
+    console.log('🔵 Open questions:', openQuestions.map(q => `${q.text.substring(0, 50)} (${q.textAnswers?.length || 0} answers)`).join(' | '));
+  }
+  
+  // Toujours créer la page, même s'il n'y a pas de questions
+  createOpenQuestionsPage(pdf, openQuestions, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
   console.log('🔵 Questions ouvertes page created');
   
   // Créer la page de réflexion

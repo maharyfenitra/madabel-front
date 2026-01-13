@@ -2,11 +2,19 @@ import jsPDF from 'jspdf';
 import { PDF_COLORS, PDF_FONT_SIZES, PDF_SPACING } from './pdfStyles';
 import { addPageHeader, addPageFooter } from './pdfPages';
 
+interface OpenQuestion {
+  text: string;
+  type: string;
+  textAnswers?: Array<{ text: string; evaluatorType?: string }>;
+}
+
 /**
- * Crée la page des questions ouvertes
+ * Crée la page des questions ouvertes avec les questions AUTRE de type TEXT
+ * Affiche toujours la page, même s'il n'y a pas de questions configurées
  */
 export function createOpenQuestionsPage(
   pdf: jsPDF,
+  openQuestions: OpenQuestion[],
   logoCouleursDataUrl: string,
   pageWidth: number,
   pageHeight: number,
@@ -30,51 +38,79 @@ export function createOpenQuestionsPage(
   
   yPosition += 20;
 
-  // Question 1
-  pdf.setFontSize(PDF_FONT_SIZES.BODY);
-  pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(...PDF_COLORS.BLACK);
-  const question1 = "Quelles sont les plus grandes forces de cette personne lorsqu'il s'agit d'entrer en relation avec les autres et de les diriger ?";
-  const splitQ1 = pdf.splitTextToSize(question1, pageWidth - 2 * margin);
-  pdf.text(splitQ1, margin, yPosition);
-  yPosition += splitQ1.length * 5 + 3;
-
-  // Puces pour question 1
-  for (let i = 0; i < 3; i++) {
+  // Si aucune question configurée, afficher un message
+  if (!openQuestions || openQuestions.length === 0) {
     pdf.setFontSize(PDF_FONT_SIZES.BODY);
-    pdf.text('•', margin + 2, yPosition);
-    yPosition += 6;
+    pdf.setFont('helvetica', 'italic');
+    pdf.setTextColor(...PDF_COLORS.BLACK);
+    pdf.text('Aucune question ouverte configurée pour ce questionnaire.', margin, yPosition);
+    addPageFooter(pdf, pageWidth, pageHeight);
+    return;
   }
-  yPosition += 8;
 
-  // Question 2
-  pdf.setFont('helvetica', 'bold');
-  const question2 = "Quelles sont les plus grandes difficultés de cette personne lorsqu'il s'agit d'entrer en relation avec les autres et de les diriger ?";
-  const splitQ2 = pdf.splitTextToSize(question2, pageWidth - 2 * margin);
-  pdf.text(splitQ2, margin, yPosition);
-  yPosition += splitQ2.length * 5 + 3;
+  // Afficher chaque question dynamiquement
+  openQuestions.forEach((question, index) => {
+    // Vérifier si on a besoin d'une nouvelle page
+    if (yPosition > pageHeight - 60) {
+      addPageFooter(pdf, pageWidth, pageHeight);
+      pdf.addPage();
+      const newPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+      addPageHeader(pdf, logoCouleursDataUrl, newPage, pageWidth, candidatName);
+      yPosition = 50;
+    }
 
-  // Puces pour question 2
-  for (let i = 0; i < 3; i++) {
+    // Afficher le texte de la question
     pdf.setFontSize(PDF_FONT_SIZES.BODY);
-    pdf.text('•', margin + 2, yPosition);
-    yPosition += 6;
-  }
-  yPosition += 8;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...PDF_COLORS.BLACK);
+    
+    const questionText = `${index + 1}. ${question.text}`;
+    const splitQuestion = pdf.splitTextToSize(questionText, pageWidth - 2 * margin);
+    pdf.text(splitQuestion, margin, yPosition);
+    yPosition += splitQuestion.length * 5 + 5;
 
-  // Question 3
-  pdf.setFont('helvetica', 'bold');
-  const question3 = "Quels sont les points forts et les difficultés de cette personne en ce qui concerne le développement des autres ? (Tout autre commentaire que vous souhaitez faire peut être inscrit dans cette section également).";
-  const splitQ3 = pdf.splitTextToSize(question3, pageWidth - 2 * margin);
-  pdf.text(splitQ3, margin, yPosition);
-  yPosition += splitQ3.length * 5 + 3;
+    // Afficher les réponses s'il y en a
+    if (question.textAnswers && question.textAnswers.length > 0) {
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(PDF_FONT_SIZES.BODY - 1);
+      
+      question.textAnswers.forEach((answer, answerIndex) => {
+        // Vérifier si on a besoin d'une nouvelle page
+        if (yPosition > pageHeight - 40) {
+          addPageFooter(pdf, pageWidth, pageHeight);
+          pdf.addPage();
+          const newPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+          addPageHeader(pdf, logoCouleursDataUrl, newPage, pageWidth, candidatName);
+          yPosition = 50;
+        }
 
-  // Puces pour question 3
-  for (let i = 0; i < 3; i++) {
-    pdf.setFontSize(PDF_FONT_SIZES.BODY);
-    pdf.text('•', margin + 2, yPosition);
-    yPosition += 6;
-  }
+        // Afficher le type d'évaluateur si disponible
+        if (answer.evaluatorType) {
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(100, 100, 100);
+          pdf.text(`[${answer.evaluatorType}]`, margin + 2, yPosition);
+          yPosition += 5;
+        }
+
+        // Afficher la réponse
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...PDF_COLORS.BLACK);
+        const responseText = answer.text || '';
+        const splitResponse = pdf.splitTextToSize(responseText, pageWidth - 2 * margin - 5);
+        pdf.text(splitResponse, margin + 2, yPosition);
+        yPosition += splitResponse.length * 5 + 3;
+      });
+    } else {
+      // Afficher des lignes vides si pas de réponses
+      for (let i = 0; i < 3; i++) {
+        pdf.setFontSize(PDF_FONT_SIZES.BODY);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('•', margin + 2, yPosition);
+        yPosition += 6;
+      }
+    }
+    yPosition += 8; // Espacement entre les questions
+  });
 
   // Bas de page
   addPageFooter(pdf, pageWidth, pageHeight);
