@@ -33,12 +33,10 @@ export function createCategoryPage(
   isFirstCategory: boolean,
   candidatName?: string
 ): void {
-  // Nouvelle page pour chaque catégorie (sauf la première qui suit la page 4)
-  if (!isFirstCategory) {
-    pdf.addPage();
-    const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
-    addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
-  }
+  // Nouvelle page pour chaque catégorie
+  pdf.addPage();
+  const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+  addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
   
   let yPosition = 50;
   const categoryLabel = categoryInfo.name || category.category || 'Sans catégorie';
