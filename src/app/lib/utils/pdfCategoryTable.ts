@@ -108,14 +108,59 @@ export function createQuestionsTable(
   // Choisir les en-têtes appropriés
   const headers = isDevelopOthers ? TABLE_HEADERS_WITH_CATEGORY : TABLE_HEADERS;
   
-  // Ajuster la largeur de la première colonne si c'est "Développement des autres"
-  const firstColumnWidth = isDevelopOthers ? 50 : TABLE_CONFIG.FIRST_COLUMN_WIDTH;
+  console.log(`📊 Creating table for ${category.category} with ${tableData.length} rows`);
+  
+  // Diviser les données en morceaux: 8 lignes pour la première page, 20 lignes pour les suivantes
+  const FIRST_PAGE_ROWS = 8;
+  const OTHER_PAGES_ROWS = 20;
+  const chunks: any[][] = [];
+  
+  if (tableData.length <= FIRST_PAGE_ROWS) {
+    // Tout tient sur la première page
+    chunks.push(tableData);
+  } else {
+    // Premier chunk: 8 lignes
+    chunks.push(tableData.slice(0, FIRST_PAGE_ROWS));
+    
+    // Chunks suivants: 20 lignes chacun
+    for (let i = FIRST_PAGE_ROWS; i < tableData.length; i += OTHER_PAGES_ROWS) {
+      chunks.push(tableData.slice(i, i + OTHER_PAGES_ROWS));
+    }
+  }
+  
+  console.log(`📊 Table split into ${chunks.length} chunks (first: ${chunks[0].length} rows, others: up to ${OTHER_PAGES_ROWS} rows)`);
+  
+  let currentY = yPosition;
+  
+  // Créer un tableau pour chaque chunk
+  chunks.forEach((chunkData, chunkIndex) => {
+    // Si ce n'est pas le premier chunk, créer une nouvelle page
+    if (chunkIndex > 0) {
+      pdf.addPage();
+      const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+      addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
+      currentY = 55; // Position Y après l'en-tête
+      console.log(`📄 Created new page ${currentPage} for chunk ${chunkIndex + 1}/${chunks.length}`);
+    }
 
   autoTable(pdf, {
-    startY: yPosition,
+    startY: currentY,
     head: [[category.category, ...headers]],
-    body: tableData,
+    body: chunkData,
     theme: 'plain',
+    showHead: chunkIndex === 0 ? 'firstPage' : 'everyPage', // En-tête seulement sur première page du chunk
+    pageBreak: 'avoid', // Désactiver la pagination automatique car on gère manuellement
+    rowPageBreak: 'avoid',
+    tableWidth: 'auto',
+    margin: { left: margin, right: margin, top: 55, bottom: 20 },
+    didDrawPage: (hookData: any) => {
+      // Ajouter l'en-tête sur toutes les pages de continuation du tableau
+      if (hookData.pageNumber > 1) {
+        const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+        console.log(`📄 Adding header to table continuation page ${currentPage}`);
+        addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
+      }
+    },
     styles: {
       font: 'helvetica',
       fontSize: PDF_FONT_SIZES.BODY,
@@ -143,49 +188,42 @@ export function createQuestionsTable(
     },
     columnStyles: {
       0: { 
-        cellWidth: firstColumnWidth, 
         halign: 'left', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       1: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       2: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       3: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       4: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       5: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
         textColor: PDF_COLORS.BLACK 
       },
       6: { 
-        cellWidth: TABLE_CONFIG.OTHER_COLUMN_WIDTH, 
         halign: 'center', 
         valign: 'middle', 
         fillColor: PDF_COLORS.WHITE, 
@@ -193,7 +231,6 @@ export function createQuestionsTable(
       },
       ...(isDevelopOthers ? {
         7: { 
-          cellWidth: 22, 
           halign: 'center', 
           valign: 'middle', 
           fillColor: PDF_COLORS.WHITE, 
@@ -201,7 +238,6 @@ export function createQuestionsTable(
         }
       } : {}),
     },
-    margin: { left: margin, right: margin },
     didParseCell: (hookData: any) => {
       // Appliquer le style de la catégorie à l'en-tête de la première colonne
       if (hookData.section === 'head' && hookData.column.index === 0) {
@@ -232,17 +268,20 @@ export function createQuestionsTable(
         }
       }
     },
-    didDrawPage: (hookData: any) => {
-      // Ajouter l'en-tête sur les nouvelles pages
+    willDrawPage: (hookData: any) => {
+      // Log pour déboguer
       if (hookData.pageNumber > 1) {
-        const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
-        addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
+        console.log(`📄 Table will draw on page ${hookData.pageNumber}`);
       }
     },
   });
+  
+    currentY = (pdf as any).lastAutoTable.finalY + 10;
+  });
 
-  const finalY = (pdf as any).lastAutoTable.finalY;
-  return finalY + 10;
+  console.log(`📊 All ${chunks.length} table chunks created for ${category.category}`);
+  
+  return currentY;
 }
 
 /**
