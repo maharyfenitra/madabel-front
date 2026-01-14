@@ -5,10 +5,10 @@ import { CATEGORY_DATA } from './pdfStyles';
 import {
   createCoverPage,
   createTransitionPage,
-  createIntroductionPage,
-  createFormatPage,
   createConclusionPage,
 } from './pdfPages';
+import { createIntroductionPage } from './pdfIntroductionPage';
+import { createFormatPage } from './pdfFormatPage';
 import { createCategoryPage } from './pdfCategoryPage';
 import { createPinnacleSummaryPage } from './pdfPinnacleSummary';
 import { createOpenQuestionsPage } from './pdfOpenQuestions';
