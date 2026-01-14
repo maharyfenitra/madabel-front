@@ -57,8 +57,8 @@ export const PDF_SPACING = {
  * Configuration du tableau
  */
 export const TABLE_CONFIG = {
-  FIRST_COLUMN_WIDTH: 70,
-  OTHER_COLUMN_WIDTH: 18,
+  FIRST_COLUMN_WIDTH: 60,
+  OTHER_COLUMN_WIDTH: 16,
   LINE_WIDTH: 0.3,
   LINE_COLOR: [200, 200, 200] as [number, number, number],
   CELL_PADDING: 2,
