@@ -17,6 +17,7 @@ import { Settings, Bell, Loader2, AlertCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { URL_CONFIG } from "@/app/lib/api/configServer";
 import { useAccessToken } from "@/app/lib/api/useAccessToken";
+import { useFetch } from "@/app/lib/api/useFetch";
 
 type SystemConfig = {
   id: number;
@@ -38,6 +39,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
 export default function ConfigPage() {
   const { getUser } = useCurrentUser();
   const { getAccessToken } = useAccessToken();
+  const sendRequest = useFetch();
   const user = getUser();
 
   const [config, setConfig] = useState<SystemConfig | null>(null);
@@ -71,23 +73,25 @@ export default function ConfigPage() {
       setIsLoading(true);
       const token = getAccessToken();
       
-      const response = await fetch(`${URL_CONFIG.uri}/config`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors du chargement de la configuration");
+      if (!token) {
+        toast.error("Vous devez être connecté");
+        return;
       }
 
-      const data = await response.json();
-      setConfig(data);
-      setReminderEnabled(data.reminderEnabled);
-      setReminderFrequency(data.reminderFrequency);
+      const response = await sendRequest(
+        "GET",
+        `${URL_CONFIG.uri}/config`,
+        {},
+        {
+          Authorization: `Token ${token}`,
+        }
+      );
+
+      if (response?.data) {
+        setConfig(response.data);
+        setReminderEnabled(response.data.reminderEnabled);
+        setReminderFrequency(response.data.reminderFrequency);
+      }
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Erreur lors du chargement de la configuration");
@@ -101,26 +105,27 @@ export default function ConfigPage() {
       setIsSaving(true);
       const token = getAccessToken();
 
-      const response = await fetch(`${URL_CONFIG.uri}/config`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          reminderEnabled,
-          reminderFrequency,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde");
+      if (!token) {
+        toast.error("Vous devez être connecté");
+        return;
       }
 
-      const data = await response.json();
-      setConfig(data.config);
-      toast.success("Configuration mise à jour avec succès");
+      const response = await sendRequest(
+        "PUT",
+        `${URL_CONFIG.uri}/config`,
+        {
+          reminderEnabled,
+          reminderFrequency,
+        },
+        {
+          Authorization: `Token ${token}`,
+        }
+      );
+
+      if (response?.data?.config) {
+        setConfig(response.data.config);
+        toast.success("Configuration mise à jour avec succès");
+      }
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Erreur lors de la sauvegarde de la configuration");
