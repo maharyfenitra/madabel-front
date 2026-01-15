@@ -37,11 +37,9 @@ export const useLogin = () => {
       setUser(data?.user);
       // Redirect candidate users to their evaluations, others to home
       const role = data?.user?.role;
-      if (role === "EVALUATOR") {
+      if (role === "EVALUATOR" || role === "CANDIDAT") {
         push("/modules/evaluations");
-      } else if (role === "CANDIDAT") {
-        push("/modules/reports");
-      } else {
+      }else {
         push("/modules/home");
       }
     } catch (error) {

@@ -65,10 +65,22 @@ export const useHeader = () => {
     const { getUser } = useCurrentUser();
     const currentUser = getUser();
 
-    if (
-      currentUser &&
-      (currentUser.role === "EVALUATOR" || currentUser.role === "CANDIDAT")
-    ) {
+    if (currentUser && currentUser.role === "EVALUATOR") {
+      setNavItems([
+        {
+          label: "Mes évaluations",
+          href: "/modules/evaluations",
+          icon: ActivityIcon,
+        },
+        { label: "Profile", href: "/modules/profiles", icon: User },
+        {
+          label: "Se déconnecter",
+          href: "/auth/logout",
+          icon: LogOut,
+          isLogout: true,
+        },
+      ]);
+    } else if (currentUser && currentUser.role === "CANDIDAT") {
       setNavItems([
         {
           label: "Mes évaluations",
