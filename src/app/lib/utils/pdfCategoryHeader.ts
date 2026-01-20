@@ -72,5 +72,5 @@ export function displayExplanationText(
   const splitText = pdf.splitTextToSize(explanationText, pageWidth - 2 * margin);
   pdf.text(splitText, margin, yPosition);
   
-  return yPosition + splitText.length * 5 + 10; // Augmenté de 4 à 5 et de 8 à 10 pour plus d'espace
+  return yPosition + splitText.length * 3.5; // Espace minimum absolu
 }
