@@ -1,35 +1,46 @@
 import jsPDF from 'jspdf';
 import { PDF_COLORS } from './pdfStyles';
+import type { CategoryInfo } from './pdfTypes';
 
 /**
- * Crée l'encadré de titre "CATEGORY SCORES *"
+ * Crée le titre "CATEGORY SCORES *" avec la couleur du module
  */
 export function createScoresHeaderBox(
   pdf: jsPDF,
   categoryLabel: string,
   pageWidth: number,
   margin: number,
-  yPosition: number
+  yPosition: number,
+  categoryInfo?: CategoryInfo
 ): number {
-  pdf.setFillColor(220, 220, 220);
-  pdf.rect(margin, yPosition, pageWidth - 2 * margin, 10, 'F');
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text(`${categoryLabel.toUpperCase()} SCORES *`, pageWidth / 2, yPosition + 7, { align: 'center' });
   
-  return yPosition + 15;
+  // Utiliser la couleur du module si disponible, sinon noir
+  if (categoryInfo && categoryInfo.color) {
+    pdf.setTextColor(categoryInfo.color[0], categoryInfo.color[1], categoryInfo.color[2]);
+  } else {
+    pdf.setTextColor(...PDF_COLORS.BLACK);
+  }
+  
+  pdf.text(`${categoryLabel.toUpperCase()} SCORES *`, pageWidth / 2, yPosition + 2, { align: 'center' });
+  
+  // Réinitialiser la couleur
+  pdf.setTextColor(...PDF_COLORS.BLACK);
+  
+  return yPosition + 7;
 }
 
 /**
- * Calcule les moyennes par type d'évaluateur
+ * Calcule les moyennes par type d'évaluateur ET récupère la note individuelle du candidat
  */
-export function calculateAveragesByType(
+export function calculateAveragesByTypeAndCandidatScore(
   questions: Array<{
     overallAverage: number | null;
     averagesByEvaluatorType: Record<string, number>;
+    candidatAnswer?: number | null;
   }>
-): Record<string, number> {
+): { avgByType: Record<string, number>; candidatScore: number } {
   const avgByType: Record<string, number> = {
     COLLABORATEUR_DIRECT: 0,
     MANAGER_DIRECT: 0,
@@ -38,6 +49,7 @@ export function calculateAveragesByType(
     CANDIDAT: 0,
   };
 
+  // Calculer les moyennes par type d'évaluateur
   if (questions && questions.length > 0) {
     Object.keys(avgByType).forEach((type) => {
       const sum = questions.reduce((acc, q) => acc + (q.averagesByEvaluatorType[type] || 0), 0);
@@ -45,7 +57,17 @@ export function calculateAveragesByType(
     });
   }
 
-  return avgByType;
+  // Calculer la moyenne des réponses individuelles du candidat
+  let candidatScore = 0;
+  if (questions && questions.length > 0) {
+    const candidatAnswers = questions.filter(q => q.candidatAnswer !== null && q.candidatAnswer !== undefined);
+    if (candidatAnswers.length > 0) {
+      const sum = candidatAnswers.reduce((acc, q) => acc + (q.candidatAnswer || 0), 0);
+      candidatScore = sum / candidatAnswers.length;
+    }
+  }
+
+  return { avgByType, candidatScore };
 }
 
 /**
@@ -55,6 +77,7 @@ export function drawScoresChart(
   pdf: jsPDF,
   categoryAverage: number,
   avgByType: Record<string, number>,
+  candidatScore: number,
   margin: number,
   yPosition: number
 ): number {
@@ -64,7 +87,7 @@ export function drawScoresChart(
     { label: 'Manager', value: avgByType.MANAGER_DIRECT, showValue: true },
     { label: 'Peer', value: avgByType.COLLEGUE, showValue: true },
     { label: 'Others', value: avgByType.RH, showValue: true },
-    { label: 'Self', value: avgByType.CANDIDAT, showValue: false },
+    { label: 'Self', value: candidatScore, showValue: false },
   ];
 
   const barMaxWidth = 120;
@@ -72,14 +95,14 @@ export function drawScoresChart(
   let currentY = yPosition;
 
   evaluatorTypes.forEach((item, idx) => {
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(...PDF_COLORS.BLACK);
-    pdf.text(item.label, barStartX - 3, currentY + 3, { align: 'right' });
+    pdf.text(item.label, barStartX - 3, currentY + 2, { align: 'right' });
 
     // Valeur à gauche de la barre
     if (item.showValue) {
-      pdf.text(`|${item.value.toFixed(1)}`, barStartX + 2, currentY + 3);
+      pdf.text(`|${item.value.toFixed(1)}`, barStartX + 2, currentY + 2);
     }
 
     // Lignes verticales de grille (0, 1, 2, 3, 4, 5, 6, 7)
@@ -88,7 +111,7 @@ export function drawScoresChart(
       pdf.setLineWidth(0.2);
       for (let i = 0; i <= 7; i++) {
         const x = barStartX + 10 + (i * barMaxWidth / 7);
-        pdf.line(x, currentY - 2, x, currentY + (evaluatorTypes.length * 7) + 5);
+        pdf.line(x, currentY - 2, x, currentY + (evaluatorTypes.length * 4.5) + 5);
       }
     }
 
@@ -101,16 +124,16 @@ export function drawScoresChart(
       // Barre grise claire pour les autres
       pdf.setFillColor(180, 180, 180);
     }
-    pdf.rect(barStartX + 10, currentY - 1, barWidth, 5, 'F');
+    pdf.rect(barStartX + 10, currentY - 1, barWidth, 3.5, 'F');
 
     // Valeur à droite de la barre pour Self
     if (!item.showValue && item.value > 0) {
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(`${item.value.toFixed(1)}`, barStartX + 10 + barWidth + 2, currentY + 3);
+      pdf.text(`${item.value.toFixed(1)}`, barStartX + 10 + barWidth + 2, currentY + 2);
     }
 
-    currentY += 7;
+    currentY += 4.5;
   });
 
   return currentY;

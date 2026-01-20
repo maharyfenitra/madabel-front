@@ -9,7 +9,7 @@ import {
 } from './pdfCategoryHeader';
 import {
   createScoresHeaderBox,
-  calculateAveragesByType,
+  calculateAveragesByTypeAndCandidatScore,
   drawScoresChart,
   addScaleLegend
 } from './pdfCategoryChart';
@@ -59,13 +59,13 @@ export function createCategoryPage(
   yPosition = displayExplanationText(pdf, explanationText, pageWidth, margin, yPosition);
   
   // 4. Encadré "PRODUCTION SCORES *"
-  yPosition = createScoresHeaderBox(pdf, categoryLabel, pageWidth, margin, yPosition);
+  yPosition = createScoresHeaderBox(pdf, categoryLabel, pageWidth, margin, yPosition, categoryInfo);
   
-  // 5. Calculer les moyennes par type d'évaluateur
-  const avgByType = calculateAveragesByType(category.questions || []);
+  // 5. Calculer les moyennes par type d'évaluateur ET récupérer la note du candidat
+  const { avgByType, candidatScore } = calculateAveragesByTypeAndCandidatScore(category.questions || []);
   
   // 6. Graphique des scores
-  yPosition = drawScoresChart(pdf, categoryAverage, avgByType, margin, yPosition);
+  yPosition = drawScoresChart(pdf, categoryAverage, avgByType, candidatScore, margin, yPosition);
   
   // 7. Légende de l'échelle
   yPosition = addScaleLegend(pdf, margin, yPosition);

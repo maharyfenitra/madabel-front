@@ -17,9 +17,9 @@ export function addPageHeader(
   const pageHeight = pdf.internal.pageSize.getHeight();
   pdf.rect(0, 0, pageWidth, pageHeight, 'F');
   
-  // Logo en haut à gauche
+  // Logo en haut à gauche (taille réduite)
   if (logoCouleursDataUrl) {
-    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
+    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 40, 16);
   }
   
   // Nom du candidat et numéro de page en haut à droite (sans fond)
@@ -60,8 +60,8 @@ export function createCoverPage(
   // Logo couleurs MADABEL en haut à gauche
   if (logoCouleursDataUrl) {
     try {
-      const logoWidth = 60;
-      const logoHeight = 24;
+      const logoWidth = 40;
+      const logoHeight = 16;
       pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, logoWidth, logoHeight);
     } catch (e) {
       console.warn('Erreur logo couleurs couverture:', e);
@@ -139,7 +139,7 @@ export function createTransitionPage(
   
   // Logo en haut à gauche
   if (logoCouleursDataUrl) {
-    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
+    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 40, 16);
   }
   
   // Nom du candidat en haut à droite (sans fond)
@@ -169,7 +169,7 @@ export function createConclusionPage(
   
   // Logo en haut à gauche
   if (logoCouleursDataUrl) {
-    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
+    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 40, 16);
   }
   
   // Nom du candidat en haut à droite (sans fond)

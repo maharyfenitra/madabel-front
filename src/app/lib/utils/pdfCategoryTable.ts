@@ -94,7 +94,7 @@ export function createQuestionsTable(
           formatScore(question.averagesByEvaluatorType.MANAGER_DIRECT),
           formatScore(question.averagesByEvaluatorType.COLLEGUE),
           formatScore(question.averagesByEvaluatorType.RH),
-          formatScore(question.averagesByEvaluatorType.CANDIDAT),
+          formatScore(question.candidatAnswer),
         ];
         
         // Ajouter la colonne catégorie si c'est la page "Développement des autres"
@@ -110,8 +110,8 @@ export function createQuestionsTable(
   
   console.log(`📊 Creating table for ${category.category} with ${tableData.length} rows`);
   
-  // Diviser les données en morceaux: 8 lignes pour la première page, 20 lignes pour les suivantes
-  const FIRST_PAGE_ROWS = 8;
+  // Pour "DÉVELOPPEMENT DES AUTRES", augmenter la capacité car on a une page dédiée avec beaucoup de place
+  const FIRST_PAGE_ROWS = isDevelopOthers ? 20 : 14;
   const OTHER_PAGES_ROWS = 20;
   const chunks: any[][] = [];
   
@@ -119,7 +119,7 @@ export function createQuestionsTable(
     // Tout tient sur la première page
     chunks.push(tableData);
   } else {
-    // Premier chunk: 8 lignes
+    // Premier chunk: 8 ou 20 lignes selon la catégorie
     chunks.push(tableData.slice(0, FIRST_PAGE_ROWS));
     
     // Chunks suivants: 20 lignes chacun
@@ -131,6 +131,17 @@ export function createQuestionsTable(
   console.log(`📊 Table split into ${chunks.length} chunks (first: ${chunks[0].length} rows, others: up to ${OTHER_PAGES_ROWS} rows)`);
   
   let currentY = yPosition;
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  
+  // Vérifier s'il y a assez d'espace pour commencer le tableau (au moins 60mm nécessaires)
+  const minSpaceNeeded = 60;
+  if (currentY > pageHeight - minSpaceNeeded) {
+    console.log(`⚠️  Pas assez d'espace sur la page actuelle (yPosition: ${currentY}), création d'une nouvelle page`);
+    pdf.addPage();
+    const currentPage = (pdf.internal as any).getCurrentPageInfo().pageNumber;
+    addPageHeader(pdf, logoCouleursDataUrl, currentPage, pageWidth, candidatName);
+    currentY = 55;
+  }
   
   // Créer un tableau pour chaque chunk
   chunks.forEach((chunkData, chunkIndex) => {
@@ -181,7 +192,7 @@ export function createQuestionsTable(
     },
     bodyStyles: {
       fontSize: PDF_FONT_SIZES.BODY,
-      minCellHeight: 8,
+      minCellHeight: 6,
       textColor: PDF_COLORS.BLACK,
       lineWidth: TABLE_CONFIG.LINE_WIDTH,
       lineColor: TABLE_CONFIG.LINE_COLOR,

@@ -21,7 +21,7 @@ export function createIntroductionPage(
   
   // Logo en haut à gauche
   if (logoCouleursDataUrl) {
-    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 60, 24);
+    pdf.addImage(logoCouleursDataUrl, 'WEBP', 30, 15, 40, 16);
   }
   
   // Nom du candidat en haut à droite (sans fond)

@@ -378,9 +378,6 @@ export default function ReportDetailPage() {
                           Manager
                         </TableHead>
                         <TableHead className="font-semibold text-gray-900 dark:text-gray-100 text-center min-w-[120px]">
-                          Direct
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-900 dark:text-gray-100 text-center min-w-[120px]">
                           Pairs
                         </TableHead>
                         <TableHead className="font-semibold text-gray-900 dark:text-gray-100 text-center min-w-[120px]">
@@ -421,38 +418,31 @@ export default function ReportDetailPage() {
                             )}
                           </TableCell>
 
-                          {/* Collaborateurs (DIRECT_COLLEAGUE) */}
+                          {/* Collaborateurs Directs */}
                           <TableCell className="text-center">
                             <EvaluatorScore
-                              score={question.averagesByEvaluatorType.DIRECT_COLLEAGUE}
+                              score={question.averagesByEvaluatorType.COLLABORATEUR_DIRECT}
                             />
                           </TableCell>
 
-                          {/* Manager (DIRECT_MANAGER) */}
+                          {/* Manager Direct */}
                           <TableCell className="text-center">
                             <EvaluatorScore
-                              score={question.averagesByEvaluatorType.DIRECT_MANAGER}
+                              score={question.averagesByEvaluatorType.MANAGER_DIRECT}
                             />
                           </TableCell>
 
-                          {/* Direct - Je combine DIRECT_COLLEAGUE et DIRECT_MANAGER */}
+                          {/* Pairs */}
                           <TableCell className="text-center">
                             <EvaluatorScore
-                              score={getCombinedDirectScore(question.averagesByEvaluatorType)}
+                              score={question.averagesByEvaluatorType.COLLEGUE}
                             />
                           </TableCell>
 
-                          {/* Pairs (PEER) */}
+                          {/* Autres */}
                           <TableCell className="text-center">
                             <EvaluatorScore
-                              score={question.averagesByEvaluatorType.PEER}
-                            />
-                          </TableCell>
-
-                          {/* Autres (OTHER) */}
-                          <TableCell className="text-center">
-                            <EvaluatorScore
-                              score={question.averagesByEvaluatorType.OTHER}
+                              score={question.averagesByEvaluatorType.RH}
                             />
                           </TableCell>
 
@@ -487,10 +477,11 @@ function getCategoryLabel(category: string): string {
 
 function getEvaluatorTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    DIRECT_MANAGER: "Manager Direct",
-    DIRECT_COLLEAGUE: "Collaborateur Direct",
-    PEER: "Pair/Associé",
-    OTHER: "Autres",
+    MANAGER_DIRECT: "Manager Direct",
+    COLLABORATEUR_DIRECT: "Collaborateur Direct",
+    COLLEGUE: "Pair/Collègue",
+    RH: "Autres",
+    CANDIDAT: "Candidat",
   };
   return labels[type] || type;
 }
@@ -510,10 +501,10 @@ function EvaluatorScore({ score }: { score: number | undefined }) {
 
 // Fonction pour calculer le score combiné des évaluateurs directs
 function getCombinedDirectScore(averagesByType: Record<string, number>): number | undefined {
-  const directManager = averagesByType.DIRECT_MANAGER;
-  const directColleague = averagesByType.DIRECT_COLLEAGUE;
+  const managerDirect = averagesByType.MANAGER_DIRECT;
+  const collaborateurDirect = averagesByType.COLLABORATEUR_DIRECT;
 
-  const scores = [directManager, directColleague].filter(score => score !== undefined && score !== null);
+  const scores = [managerDirect, collaborateurDirect].filter(score => score !== undefined && score !== null);
 
   if (scores.length === 0) return undefined;
 

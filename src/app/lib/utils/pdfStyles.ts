@@ -61,7 +61,7 @@ export const TABLE_CONFIG = {
   OTHER_COLUMN_WIDTH: 16,
   LINE_WIDTH: 0.3,
   LINE_COLOR: [200, 200, 200] as [number, number, number],
-  CELL_PADDING: 2,
+  CELL_PADDING: 1,
 } as const;
 
 /**
