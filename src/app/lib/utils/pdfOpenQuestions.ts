@@ -84,15 +84,7 @@ export function createOpenQuestionsPage(
           yPosition = 50;
         }
 
-        // Afficher le type d'évaluateur si disponible
-        if (answer.evaluatorType) {
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(100, 100, 100);
-          pdf.text(`[${answer.evaluatorType}]`, margin + 2, yPosition);
-          yPosition += 5;
-        }
-
-        // Afficher la réponse
+        // Afficher la réponse directement sans le type d'évaluateur
         pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(...PDF_COLORS.BLACK);
         const responseText = answer.text || '';

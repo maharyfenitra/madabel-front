@@ -48,10 +48,7 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
   // PAGE 3 - Introduction
   createIntroductionPage(pdf, logoCouleursDataUrl, logoDataUrl, pageWidth, pageHeight, margin, data.candidatName);
 
-  // PAGE 4 - Format du rapport
-  createFormatPage(pdf, logoCouleursDataUrl, pageWidth, pageHeight, margin, data.candidatName);
-
-  // PAGES 5+ - Catégories - TOUJOURS afficher toutes les catégories dans l'ordre fixe
+  // PAGES 4+ - Catégories - TOUJOURS afficher toutes les catégories dans l'ordre fixe
   // Sauvegarder la catégorie AUTRE avant de la filtrer pour les questions ouvertes
   console.log('🔵 Total categories in data.report:', data.report.length);
   console.log('🔵 Categories:', data.report.map((c: any) => c.category).join(', '));
@@ -205,6 +202,9 @@ export async function generateReportPDF(data: ReportData): Promise<void> {
       developOthersQuestions.push(...questionsWithCategory);
     }
   });
+  
+  // Trier par le champ 'order' pour avoir l'ordre global de la base de données
+  developOthersQuestions.sort((a, b) => (a.order || 0) - (b.order || 0));
   
   console.log('🔵 Total developOthers questions:', developOthersQuestions.length);
   

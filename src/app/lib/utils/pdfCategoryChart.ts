@@ -33,14 +33,16 @@ export function createScoresHeaderBox(
 
 /**
  * Calcule les moyennes par type d'évaluateur ET récupère la note individuelle du candidat
+ * ainsi que les compteurs de participants
  */
 export function calculateAveragesByTypeAndCandidatScore(
   questions: Array<{
     overallAverage: number | null;
     averagesByEvaluatorType: Record<string, number>;
+    countByEvaluatorType?: Record<string, number>;
     candidatAnswer?: number | null;
   }>
-): { avgByType: Record<string, number>; candidatScore: number } {
+): { avgByType: Record<string, number>; candidatScore: number; countByType: Record<string, number>; candidatCount: number } {
   const avgByType: Record<string, number> = {
     COLLABORATEUR_DIRECT: 0,
     MANAGER_DIRECT: 0,
@@ -49,25 +51,39 @@ export function calculateAveragesByTypeAndCandidatScore(
     CANDIDAT: 0,
   };
 
-  // Calculer les moyennes par type d'évaluateur
+  const countByType: Record<string, number> = {
+    COLLABORATEUR_DIRECT: 0,
+    MANAGER_DIRECT: 0,
+    COLLEGUE: 0,
+    RH: 0,
+    CANDIDAT: 0,
+  };
+
+  // Calculer les moyennes et les compteurs par type d'évaluateur
   if (questions && questions.length > 0) {
     Object.keys(avgByType).forEach((type) => {
       const sum = questions.reduce((acc, q) => acc + (q.averagesByEvaluatorType[type] || 0), 0);
       avgByType[type] = sum / questions.length;
+      
+      // Calculer le max des compteurs pour ce type à travers toutes les questions
+      const maxCount = Math.max(...questions.map(q => (q.countByEvaluatorType?.[type] || 0)));
+      countByType[type] = maxCount;
     });
   }
 
   // Calculer la moyenne des réponses individuelles du candidat
   let candidatScore = 0;
+  let candidatCount = 0;
   if (questions && questions.length > 0) {
     const candidatAnswers = questions.filter(q => q.candidatAnswer !== null && q.candidatAnswer !== undefined);
     if (candidatAnswers.length > 0) {
       const sum = candidatAnswers.reduce((acc, q) => acc + (q.candidatAnswer || 0), 0);
       candidatScore = sum / candidatAnswers.length;
+      candidatCount = 1; // Le candidat a répondu
     }
   }
 
-  return { avgByType, candidatScore };
+  return { avgByType, candidatScore, countByType, candidatCount };
 }
 
 /**
@@ -78,16 +94,21 @@ export function drawScoresChart(
   categoryAverage: number,
   avgByType: Record<string, number>,
   candidatScore: number,
+  countByType: Record<string, number>,
+  candidatCount: number,
   margin: number,
   yPosition: number
 ): number {
+  // Calculer le total des participants (moyenne générale)
+  const totalCount = countByType.COLLABORATEUR_DIRECT + countByType.MANAGER_DIRECT + countByType.COLLEGUE + countByType.RH;
+  
   const evaluatorTypes = [
-    { label: 'Overall', value: categoryAverage, showValue: true },
-    { label: 'Direct Reports', value: avgByType.COLLABORATEUR_DIRECT, showValue: true },
-    { label: 'Manager', value: avgByType.MANAGER_DIRECT, showValue: true },
-    { label: 'Peer', value: avgByType.COLLEGUE, showValue: true },
-    { label: 'Others', value: avgByType.RH, showValue: true },
-    { label: 'Self', value: candidatScore, showValue: false },
+    { label: 'Moyenne générale', value: categoryAverage, count: totalCount, showValue: true },
+    { label: 'Collaborateurs Directs', value: avgByType.COLLABORATEUR_DIRECT, count: countByType.COLLABORATEUR_DIRECT, showValue: true },
+    { label: 'Manager Direct', value: avgByType.MANAGER_DIRECT, count: countByType.MANAGER_DIRECT, showValue: true },
+    { label: 'Pairs', value: avgByType.COLLEGUE, count: countByType.COLLEGUE, showValue: true },
+    { label: 'Autres', value: avgByType.RH, count: countByType.RH, showValue: true },
+    { label: 'Soi', value: candidatScore, count: candidatCount, showValue: false },
   ];
 
   const barMaxWidth = 120;
@@ -98,12 +119,12 @@ export function drawScoresChart(
     pdf.setFontSize(7);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(...PDF_COLORS.BLACK);
-    pdf.text(item.label, barStartX - 3, currentY + 2, { align: 'right' });
+    
+    // Label avec le compteur de participants
+    const labelWithCount = `${item.label} (${item.count})`;
+    pdf.text(labelWithCount, barStartX - 3, currentY + 2, { align: 'right' });
 
-    // Valeur à gauche de la barre
-    if (item.showValue) {
-      pdf.text(`|${item.value.toFixed(1)}`, barStartX + 2, currentY + 2);
-    }
+    // Note: on n'affiche plus la valeur moyenne à gauche de la barre
 
     // Lignes verticales de grille (0, 1, 2, 3, 4, 5, 6, 7)
     if (idx === 0) {
