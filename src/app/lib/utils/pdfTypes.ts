@@ -6,8 +6,10 @@ export type CategoryReport = {
     questionType: string;
     category?: string;
     subcategory?: string | null;
+    order?: number;
     overallAverage: number | null;
     averagesByEvaluatorType: Record<string, number>;
+    countByEvaluatorType?: Record<string, number>;
     candidatAnswer?: number | null;
     totalEvaluators: number;
     answeredEvaluators: number;

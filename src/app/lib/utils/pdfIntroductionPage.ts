@@ -58,8 +58,8 @@ export function createIntroductionPage(
   pdf.setTextColor(...PDF_COLORS.BLUE);
   pdf.text('Pinnacle, ', margin + 62, yPosition);
   
-  // "Position." en noir
-  pdf.setTextColor(...PDF_COLORS.BLACK);
+  // "Position." en rouge
+  pdf.setTextColor(...PDF_COLORS.RED);
   pdf.text('Position.', margin + 88, yPosition);
   yPosition += 15;
   

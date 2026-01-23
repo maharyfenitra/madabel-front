@@ -14,10 +14,17 @@ function calculateAverage(questions: CategoryReport['questions']): number {
 }
 
 /**
- * Calcule les moyennes par type d'évaluateur
+ * Calcule les moyennes par type d'évaluateur et les compteurs de participants
  */
-function calculateAveragesByType(questions: CategoryReport['questions']): Record<string, number> {
+function calculateAveragesByType(questions: CategoryReport['questions']): { avgByType: Record<string, number>; countByType: Record<string, number> } {
   const typeAverages: Record<string, { sum: number; count: number }> = {};
+  const countByType: Record<string, number> = {
+    COLLABORATEUR_DIRECT: 0,
+    MANAGER_DIRECT: 0,
+    COLLEGUE: 0,
+    RH: 0,
+    CANDIDAT: 0,
+  };
 
   questions.forEach((q) => {
     Object.entries(q.averagesByEvaluatorType).forEach(([type, avg]) => {
@@ -27,14 +34,21 @@ function calculateAveragesByType(questions: CategoryReport['questions']): Record
       typeAverages[type].sum += avg;
       typeAverages[type].count++;
     });
+    
+    // Calculer le max des compteurs pour chaque type
+    if (q.countByEvaluatorType) {
+      Object.entries(q.countByEvaluatorType).forEach(([type, count]) => {
+        countByType[type] = Math.max(countByType[type], count);
+      });
+    }
   });
 
-  const result: Record<string, number> = {};
+  const avgByType: Record<string, number> = {};
   Object.entries(typeAverages).forEach(([type, data]) => {
-    result[type] = data.count > 0 ? data.sum / data.count : 0;
+    avgByType[type] = data.count > 0 ? data.sum / data.count : 0;
   });
 
-  return result;
+  return { avgByType, countByType };
 }
 
 /**
@@ -45,26 +59,28 @@ function drawMiniChart(
   xStart: number,
   yStart: number,
   avgByType: Record<string, number>,
-  overallAverage: number
+  countByType: Record<string, number>,
+  overallAverage: number,
+  totalCount: number
 ): number {
   const labels = [
-    { key: 'COLLABORATEUR_DIRECT', label: 'Direct Reports' },
-    { key: 'MANAGER_DIRECT', label: 'Manager' },
-    { key: 'COLLEGUE', label: 'Peer' },
-    { key: 'RH', label: 'Others' },
-    { key: 'CANDIDAT', label: 'Self' },
+    { key: 'COLLABORATEUR_DIRECT', label: 'Collaborateurs Directs' },
+    { key: 'MANAGER_DIRECT', label: 'Manager Direct' },
+    { key: 'COLLEGUE', label: 'Pairs' },
+    { key: 'RH', label: 'Autres' },
+    { key: 'CANDIDAT', label: 'Soi' },
   ];
 
   const lineHeight = 5;
   const maxBarWidth = 100;
   let currentY = yStart;
 
-  // Ajouter "Overall" en premier
+  // Ajouter "Moyenne générale" en premier avec le compteur total
   pdf.setFontSize(PDF_FONT_SIZES.TINY);
   pdf.setFont('helvetica', 'normal');
   pdf.setTextColor(...PDF_COLORS.BLACK);
-  pdf.text('Overall', xStart, currentY);
-  pdf.text(formatScore(overallAverage), xStart + 40, currentY, { align: 'right' });
+  const labelWithCount = `Moyenne générale (${totalCount})`;
+  pdf.text(labelWithCount, xStart, currentY);
 
   // Dessiner la barre
   const barWidth = (overallAverage / 7) * maxBarWidth;
@@ -73,11 +89,12 @@ function drawMiniChart(
 
   currentY += lineHeight;
 
-  // Dessiner les autres lignes
+  // Dessiner les autres lignes avec les compteurs
   labels.forEach((item) => {
     const value = avgByType[item.key] || 0;
-    pdf.text(item.label, xStart, currentY);
-    pdf.text(formatScore(value), xStart + 40, currentY, { align: 'right' });
+    const count = countByType[item.key] || 0;
+    const labelWithCount = `${item.label} (${count})`;
+    pdf.text(labelWithCount, xStart, currentY);
 
     const itemBarWidth = (value / 7) * maxBarWidth;
     pdf.setFillColor(...PDF_COLORS.DARK_GREY);
@@ -127,9 +144,10 @@ export function createPinnacleSummaryPage(
 
   yPosition += 15;
 
-  // Calculer les moyennes
+  // Calculer les moyennes et les compteurs
   const soiAverage = calculateAverage(soiQuestions);
-  const soiAvgByType = calculateAveragesByType(soiQuestions);
+  const { avgByType: soiAvgByType, countByType: soiCountByType } = calculateAveragesByType(soiQuestions);
+  const soiTotalCount = soiCountByType.COLLABORATEUR_DIRECT + soiCountByType.MANAGER_DIRECT + soiCountByType.COLLEGUE + soiCountByType.RH;
 
   // Moyenne générale
   pdf.setFontSize(PDF_FONT_SIZES.BODY);
@@ -139,7 +157,7 @@ export function createPinnacleSummaryPage(
   yPosition += PDF_SPACING.MEDIUM;
 
   // Mini graphique
-  yPosition = drawMiniChart(pdf, margin + 5, yPosition, soiAvgByType, soiAverage);
+  yPosition = drawMiniChart(pdf, margin + 5, yPosition, soiAvgByType, soiCountByType, soiAverage, soiTotalCount);
   yPosition += PDF_SPACING.MEDIUM;
 
   // Section Pinnacle-Autres (toujours affichée)
@@ -154,9 +172,10 @@ export function createPinnacleSummaryPage(
 
   yPosition += 15;
 
-  // Calculer les moyennes
+  // Calculer les moyennes et les compteurs
   const autresAverage = calculateAverage(autresQuestions);
-  const autresAvgByType = calculateAveragesByType(autresQuestions);
+  const { avgByType: autresAvgByType, countByType: autresCountByType } = calculateAveragesByType(autresQuestions);
+  const autresTotalCount = autresCountByType.COLLABORATEUR_DIRECT + autresCountByType.MANAGER_DIRECT + autresCountByType.COLLEGUE + autresCountByType.RH;
 
   // Moyenne générale
   pdf.setFontSize(PDF_FONT_SIZES.BODY);
@@ -166,7 +185,7 @@ export function createPinnacleSummaryPage(
   yPosition += PDF_SPACING.MEDIUM;
 
   // Mini graphique
-  yPosition = drawMiniChart(pdf, margin + 5, yPosition, autresAvgByType, autresAverage);
+  yPosition = drawMiniChart(pdf, margin + 5, yPosition, autresAvgByType, autresCountByType, autresAverage, autresTotalCount);
 
   // Bas de page
   addPageFooter(pdf, pageWidth, pageHeight);

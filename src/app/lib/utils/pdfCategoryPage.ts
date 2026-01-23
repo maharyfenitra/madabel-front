@@ -54,18 +54,20 @@ export function createCategoryPage(
   // 2. Moyenne générale
   yPosition = displayCategoryAverage(pdf, categoryAverage, margin, yPosition);
   
-  // 3. Texte explicatif selon la catégorie
-  const explanationText = CATEGORY_DESCRIPTIONS[category.category] || CATEGORY_DESCRIPTIONS.PRODUCTION;
-  yPosition = displayExplanationText(pdf, explanationText, pageWidth, margin, yPosition);
+  // 3. Texte explicatif selon la catégorie (seulement si disponible et non vide)
+  const explanationText = CATEGORY_DESCRIPTIONS[category.category];
+  if (explanationText && explanationText.trim() !== '') {
+    yPosition = displayExplanationText(pdf, explanationText, pageWidth, margin, yPosition);
+  }
   
   // 4. Encadré "PRODUCTION SCORES *"
   yPosition = createScoresHeaderBox(pdf, categoryLabel, pageWidth, margin, yPosition, categoryInfo);
   
   // 5. Calculer les moyennes par type d'évaluateur ET récupérer la note du candidat
-  const { avgByType, candidatScore } = calculateAveragesByTypeAndCandidatScore(category.questions || []);
+  const { avgByType, candidatScore, countByType, candidatCount } = calculateAveragesByTypeAndCandidatScore(category.questions || []);
   
   // 6. Graphique des scores
-  yPosition = drawScoresChart(pdf, categoryAverage, avgByType, candidatScore, margin, yPosition);
+  yPosition = drawScoresChart(pdf, categoryAverage, avgByType, candidatScore, countByType, candidatCount, margin, yPosition);
   
   // 7. Légende de l'échelle
   yPosition = addScaleLegend(pdf, margin, yPosition);

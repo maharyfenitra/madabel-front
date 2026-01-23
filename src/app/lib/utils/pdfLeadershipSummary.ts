@@ -39,6 +39,7 @@ export function createLeadershipSummaryPage(
     text: string;
     category: string;
     average: number;
+    order: number;
   }> = [];
 
   reportCategories.forEach(category => {
@@ -62,13 +63,14 @@ export function createLeadershipSummaryPage(
           text: question.questionText,
           category: displayCategory,
           average: question.overallAverage || 0,
+          order: question.order || 0,
         });
       });
     }
   });
 
-  // Trier par moyenne décroissante
-  allQuestions.sort((a, b) => b.average - a.average);
+  // Trier par ordre des questions (champ order)
+  allQuestions.sort((a, b) => a.order - b.order);
 
   // Préparer les données du tableau
   const tableData = allQuestions.map((q, index) => [
