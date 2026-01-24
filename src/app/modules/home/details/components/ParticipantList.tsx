@@ -209,7 +209,7 @@ export const ParticipantList = () => {
                         {getEvaluatorTypeLabel(participant.evaluatorType)}
                       </TableCell>
                       <TableCell>
-                        {getRoleBadge(participant.user.role)}
+                        {getRoleBadge(participant.participantRole)}
                       </TableCell>
                       <TableCell className="text-right">
                         <MailButton
@@ -217,6 +217,7 @@ export const ParticipantList = () => {
                           refetchParticipants={refetchParticipants}
                           sendingParticipants={sendingParticipants}
                           setSendingParticipants={setSendingParticipants}
+                          hasCandidate={participants?.some((p: any) => p.participantRole === "CANDIDAT")}
                         />
                       </TableCell>
                       <TableCell className="text-gray-700 dark:text-gray-300">

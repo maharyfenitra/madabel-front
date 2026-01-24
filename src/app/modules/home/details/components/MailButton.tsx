@@ -12,24 +12,29 @@ export const MailButton = ({
   participant,
   refetchParticipants,
   sendingParticipants,
-  setSendingParticipants
+  setSendingParticipants,
+  hasCandidate = true
 }: {
   participant: any;
   refetchParticipants: () => any;
   sendingParticipants: Set<number>;
   setSendingParticipants: Dispatch<SetStateAction<Set<number>>>;
+  hasCandidate?: boolean;
 }) => {
 
      const { getAccessToken } = useAccessToken();
       const sendRequest = useFetch();
       const { uri } = useServerConfig();
 
+     const isDisabled = sendingParticipants.has(participant.id) || !hasCandidate;
+
     return <div className="flex gap-2 justify-end">
                           {!participant.mailSentAt && (
                             <Button
-                              className="bg-green-500 hover:bg-green-600 text-white"
+                              className="bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                               size="sm"
-                              disabled={sendingParticipants.has(participant.id)}
+                              disabled={isDisabled}
+                              title={!hasCandidate ? "Ajoutez d'abord un candidat à l'évaluation" : "Envoyer l'invitation"}
                               onClick={async () => {
                                 setSendingParticipants(prev => new Set(prev).add(participant.id));
                                 try {
@@ -71,9 +76,10 @@ export const MailButton = ({
                           )}
                           {participant.mailSentAt && (
                             <Button
-                              className="bg-orange-500 hover:bg-orange-600 text-white"
+                              className="bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                               size="sm"
-                              disabled={sendingParticipants.has(participant.id)}
+                              disabled={isDisabled}
+                              title={!hasCandidate ? "Ajoutez d'abord un candidat à l'évaluation" : "Envoyer une relance"}
                               onClick={async () => {
                                 setSendingParticipants(prev => new Set(prev).add(participant.id));
                                 try {

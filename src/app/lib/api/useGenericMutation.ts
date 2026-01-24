@@ -1,7 +1,6 @@
 import { useFetch } from "./useFetch";
 import { useMutation } from "@tanstack/react-query";
 import { useAccessToken } from "./useAccessToken";
-import { URL_CONFIG } from "./configServer";
 
 export const useGenericMutation = <TVariables>(
   endpoint: string,
@@ -17,7 +16,7 @@ export const useGenericMutation = <TVariables>(
       
       return sendRequest(
         method,
-        `${URL_CONFIG.uri}${endpoint}`,
+        endpoint,
         variables,
         {
           ...(accessToken ? { Authorization: `Token ${accessToken}` } : {}),
