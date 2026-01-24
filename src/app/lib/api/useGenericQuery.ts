@@ -2,7 +2,6 @@ import { useFetch } from "./useFetch";
 import { useQuery } from "@tanstack/react-query";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useAccessToken } from "./useAccessToken";
-import { URL_CONFIG } from "./configServer";
 
 export const useGenericQuery = <TData>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,7 +22,7 @@ export const useGenericQuery = <TData>(
     queryFn: async () => {
       const response = await sendRequest(
         "GET",
-        `${URL_CONFIG.uri}${endpoint}`,
+        endpoint,
         params,
         {
           Authorization: `Token ${getAccessToken()}`
