@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { MadaButton, MadaInput, MadaLabel } from "@/app/lib/components"
+import { MadaButton, MadaInput, MadaLabel, MadaSelect } from "@/app/lib/components"
 import { useNewEvaluation } from "../hooks/useNewEvaluation"
 import { FileText, Calendar, X, Save } from "lucide-react"
 
 export function NewEvaluation() {
   const router = useRouter()
-  const { handleSubmit, handleChange, formData } = useNewEvaluation()
+  const { handleSubmit, handleChange, formData, quizzes, quizzesLoading } = useNewEvaluation()
   
   return (
     <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -65,6 +65,28 @@ export function NewEvaluation() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange("deadline", e.target.value)}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <MadaLabel htmlFor="quizId" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Quiz *
+              </MadaLabel>
+              <MadaSelect
+                id="quizId"
+                name="quizId"
+                value={formData.quizId}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange("quizId", parseInt(e.target.value))}
+                required
+                disabled={quizzesLoading}
+              >
+                <option value="">Sélectionner un quiz</option>
+                {quizzes?.map((quiz: any) => (
+                  <option key={quiz.id} value={quiz.id}>
+                    {quiz.title}
+                  </option>
+                ))}
+              </MadaSelect>
             </div>
           </div>
         </CardContent>

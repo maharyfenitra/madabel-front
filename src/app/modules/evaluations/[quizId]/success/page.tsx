@@ -60,25 +60,6 @@ export default function SuccessPage() {
                   Vous reviendrez à cette page en utilisant l'étape 3 de vos instructions reçues par courriel 
                   pour voir et imprimer votre rapport APRÈS que vos évaluateurs aient terminé votre évaluation.
                 </p>
-
-                <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Cliquez sur le bouton VOIR LE RAPPORT ci-dessous pour recevoir une copie de votre rapport de 
-                  leadership MADABEL. Vous pouvez sauvegarder la version électronique de ce rapport ou l'imprimer.
-                </p>
-
-                {/* Bouton de téléchargement du rapport */}
-                {evaluationId && (
-                  <div className="flex justify-center pt-4">
-                    <Link href={`/modules/reports/${evaluationId}`}>
-                      <Button 
-                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
-                      >
-                        <FileDown className="w-4 h-4 mr-2" />
-                        Voir le rapport
-                      </Button>
-                    </Link>
-                  </div>
-                )}
               </>
             ) : (
               /* Message standard pour les évaluateurs */

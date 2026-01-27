@@ -59,3 +59,62 @@ export function getEvaluatorTypeLabel(type: string): string {
   };
   return labels[type] || type;
 }
+
+/**
+ * Dessine du texte justifié (aligné à gauche et à droite)
+ * @param pdf - Instance jsPDF
+ * @param text - Texte à afficher
+ * @param x - Position X de départ
+ * @param y - Position Y de départ
+ * @param maxWidth - Largeur maximale du texte
+ * @param lineHeight - Hauteur de ligne (défaut 5)
+ * @returns La position Y finale après le texte
+ */
+export function drawJustifiedText(
+  pdf: any,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number = 5
+): number {
+  const lines = pdf.splitTextToSize(text, maxWidth);
+  let currentY = y;
+
+  lines.forEach((line: string, index: number) => {
+    const isLastLine = index === lines.length - 1;
+    
+    if (isLastLine || line.trim() === '') {
+      // Dernière ligne : alignement à gauche uniquement
+      pdf.text(line, x, currentY);
+    } else {
+      // Justifier la ligne en distribuant l'espace entre les mots
+      const words = line.split(' ');
+      
+      if (words.length === 1) {
+        // Un seul mot : pas de justification
+        pdf.text(line, x, currentY);
+      } else {
+        // Calculer la largeur totale des mots sans espaces
+        const wordsWidth = words.reduce((total, word) => {
+          return total + pdf.getTextWidth(word);
+        }, 0);
+        
+        // Calculer l'espace à distribuer entre les mots
+        const totalSpaceWidth = maxWidth - wordsWidth;
+        const spaceWidth = totalSpaceWidth / (words.length - 1);
+        
+        // Dessiner chaque mot avec l'espacement calculé
+        let currentX = x;
+        words.forEach((word, wordIndex) => {
+          pdf.text(word, currentX, currentY);
+          currentX += pdf.getTextWidth(word) + spaceWidth;
+        });
+      }
+    }
+    
+    currentY += lineHeight;
+  });
+
+  return currentY;
+}

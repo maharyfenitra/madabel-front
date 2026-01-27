@@ -8,7 +8,7 @@ import { URL_CONFIG } from "@/app/lib/api/configServer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, FileText, Eye, Loader2, AlertCircle, Download } from "lucide-react";
+import { Calendar, Users, FileText, Eye, Loader2, AlertCircle, Download, Mail } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -127,6 +127,44 @@ export default function ReportsPage() {
     }
   };
 
+  const handleSendEmail = async (evaluationId: number, candidatEmail: string, candidatName: string) => {
+    try {
+      toast.info("Envoi du rapport en cours...");
+      
+      const token = getAccessToken();
+      
+      if (!token) {
+        toast.error("Non authentifié. Veuillez vous reconnecter.");
+        return;
+      }
+      
+      const response = await fetch(`${URL_CONFIG.uri}/reports/${evaluationId}/send-email`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+        body: JSON.stringify({
+          candidatEmail,
+          candidatName,
+        }),
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Non autorisé. Veuillez vous reconnecter.');
+        }
+        throw new Error('Erreur lors de l\'envoi du rapport');
+      }
+      
+      toast.success(`Rapport envoyé à ${candidatEmail} avec succès!`);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du rapport:', error);
+      toast.error(error instanceof Error ? error.message : "Erreur lors de l'envoi du rapport");
+    }
+  };
+
   return (
     <div className="py-6">
       <Card className="shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -220,6 +258,18 @@ export default function ReportsPage() {
                     </TableHeader>
                     <TableBody>
                       {evaluations.map((evaluation: Evaluation) => {
+                        // Vérifier si le candidat a complété
+                        const candidatParticipant = evaluation.participants.find(
+                          (p) => p.participantRole === "CANDIDAT"
+                        );
+                        const candidatCompleted = candidatParticipant?.completedAt ? 1 : 0;
+                        
+                        // Calculer le total des participants (évaluateurs + candidat)
+                        const totalParticipants = evaluation.evaluatorsCount + 1; // +1 pour le candidat
+                        const totalCompleted = evaluation.completedEvaluators + candidatCompleted;
+                        
+                        // Vérifier si tous les participants ont complété l'évaluation
+                        const allParticipantsCompleted = totalCompleted === totalParticipants;
 
                         return (
                           <TableRow
@@ -248,14 +298,14 @@ export default function ReportsPage() {
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-medium">
-                                      {evaluation.completedEvaluators} / {evaluation.evaluatorsCount}
+                                      {totalCompleted} / {totalParticipants}
                                     </span>
                                   </div>
                                   <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div 
                                       className="bg-green-500 h-2 rounded-full transition-all" 
                                       style={{ 
-                                        width: `${evaluation.evaluatorsCount > 0 ? (evaluation.completedEvaluators / evaluation.evaluatorsCount) * 100 : 0}%` 
+                                        width: `${totalParticipants > 0 ? (totalCompleted / totalParticipants) * 100 : 0}%` 
                                       }}
                                     ></div>
                                   </div>
@@ -264,14 +314,14 @@ export default function ReportsPage() {
                             </TableCell>
                             <TableCell>
                               <Badge
-                                variant={evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0 ? "default" : "secondary"}
+                                variant={allParticipantsCompleted ? "default" : "secondary"}
                                 className={
-                                  evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0
+                                  allParticipantsCompleted
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                     : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                                 }
                               >
-                                {evaluation.completedEvaluators === evaluation.evaluatorsCount && evaluation.evaluatorsCount > 0 ? "Terminée" : "En cours"}
+                                {allParticipantsCompleted ? "Terminée" : "En cours"}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
@@ -281,6 +331,8 @@ export default function ReportsPage() {
                                     variant="outline"
                                     size="sm"
                                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400"
+                                    disabled={!allParticipantsCompleted}
+                                    title={!allParticipantsCompleted ? "Tous les participants doivent avoir complété l'évaluation" : ""}
                                   >
                                     <Eye className="w-4 h-4 mr-2" />
                                     Voir le rapport
@@ -291,10 +343,23 @@ export default function ReportsPage() {
                                   size="sm"
                                   onClick={() => handleDownloadPDF(evaluation.id, evaluation.ref)}
                                   className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 dark:text-green-400"
+                                  disabled={!allParticipantsCompleted}
+                                  title={!allParticipantsCompleted ? "Tous les participants doivent avoir complété l'évaluation" : ""}
                                 >
                                   <Download className="w-4 h-4 mr-2" />
                                   Télécharger PDF
                                 </Button>
+                                {/* <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleSendEmail(evaluation.id, evaluation.candidat?.email || '', evaluation.candidat?.name || '')}
+                                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 dark:text-purple-400"
+                                  disabled={!allParticipantsCompleted || !evaluation.candidat?.email}
+                                  title={!allParticipantsCompleted ? "Tous les participants doivent avoir complété l'évaluation" : !evaluation.candidat?.email ? "Email du candidat non disponible" : ""}
+                                >
+                                  <Mail className="w-4 h-4 mr-2" />
+                                  Envoyer par email
+                                </Button> */}
                               </div>
                             </TableCell>
                           </TableRow>

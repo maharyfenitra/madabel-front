@@ -71,17 +71,9 @@ export function calculateAveragesByTypeAndCandidatScore(
     });
   }
 
-  // Calculer la moyenne des réponses individuelles du candidat
-  let candidatScore = 0;
-  let candidatCount = 0;
-  if (questions && questions.length > 0) {
-    const candidatAnswers = questions.filter(q => q.candidatAnswer !== null && q.candidatAnswer !== undefined);
-    if (candidatAnswers.length > 0) {
-      const sum = candidatAnswers.reduce((acc, q) => acc + (q.candidatAnswer || 0), 0);
-      candidatScore = sum / candidatAnswers.length;
-      candidatCount = 1; // Le candidat a répondu
-    }
-  }
+  // Utiliser la moyenne de tous les candidats (type CANDIDAT) au lieu de la réponse individuelle
+  const candidatScore = avgByType.CANDIDAT || 0;
+  const candidatCount = countByType.CANDIDAT || 0;
 
   return { avgByType, candidatScore, countByType, candidatCount };
 }

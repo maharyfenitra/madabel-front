@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { PDF_COLORS } from './pdfStyles';
+import { drawJustifiedText } from './pdfHelpers';
 
 /**
  * Crée la troisième page (Introduction)
@@ -76,20 +77,6 @@ export function createIntroductionPage(
     }
   }
   
-  // Texte sous le logo
-  pdf.setFontSize(9);
-  pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(...PDF_COLORS.BLACK);
-  const textUnderLogo = [
-    'Intelligence Émotionnelle (IE)- Confiance',
-    'Donne des résultats - Cultive les relations - Développe les autres'
-  ];
-  textUnderLogo.forEach((line) => {
-    pdf.text(line, margin, yPosition);
-    yPosition += 5;
-  });
-  yPosition += 5;
-  
   // Boîte grise
   pdf.setFillColor(220, 220, 220);
   pdf.rect(margin, yPosition, pageWidth - 2 * margin, 10, 'F');
@@ -101,26 +88,21 @@ export function createIntroductionPage(
   pdf.setFont('helvetica', 'normal');
   
   const explanationTexts = [
-    'Lisez attentivement tous les en-têtes. Les informations figurant ci-dessus et dans les en-',
-    'têtes de chaque section vous aideront à tirer le meilleur parti de votre rapport. Nous vous',
-    'encourageons à l\'étudier attentivement du début à la fin, sans sauter les explications.',
+    'Lisez attentivement tous les en-têtes. Les informations figurant ci-dessus et dans les entêtes de chaque section vous aideront à tirer le meilleur parti de votre rapport. Nous vous encourageons à l\'étudier attentivement du début à la fin, sans sauter les explications.',
     '',
-    'Restez ouvert aux commentaires. Votre attitude à l\'égard des informations contenues dans',
-    'le rapport et cruciale pour la façon dont vous les recevez et les utilisez.',
+    'Restez ouvert aux commentaires. Votre attitude à l\'égard des informations contenues dans le rapport et cruciale pour la façon dont vous les recevez et les utilisez.',
     '',
-    'Vous aurez des éléments de retour très positifs ; réfléchissez à la manière dont vous pouvez',
-    'continuer à vous appuyer sur ces points forts.',
+    'Vous aurez des éléments de retour très positifs ; réfléchissez à la manière dont vous pouvez continuer à vous appuyer sur ces points forts.',
     '',
-    'De même, vous aurez quelques commentaires constructifs dans votre rapport.',
-    'N\'oubliez pas que les commentaires constructifs sont toujours blessants. Notre ego a',
-    'tendance à être sensible et la moindre critique peut blesser. Attendez-vous à ce choc et',
-    'rappelez-vous que c\'est normal. Évitez d\'être sur la défensive en reconnaissant qu\'il n\'y a',
-    'pas de leaders parfaits.',
+    'De même, vous aurez quelques commentaires constructifs dans votre rapport. N\'oubliez pas que les commentaires constructifs sont toujours blessants. Notre ego a tendance à être sensible et la moindre critique peut blesser. Attendez-vous à ce choc et rappelez-vous que c\'est normal. Évitez d\'être sur la défensive en reconnaissant qu\'il n\'y a pas de leaders parfaits.',
   ];
   
-  explanationTexts.forEach((line) => {
-    pdf.text(line, margin, yPosition, { maxWidth: pageWidth - 2 * margin });
-    yPosition += 5;
+  explanationTexts.forEach((paragraph) => {
+    if (paragraph === '') {
+      yPosition += 5;
+    } else {
+      yPosition = drawJustifiedText(pdf, paragraph, margin, yPosition, pageWidth - 2 * margin, 5);
+    }
   });
   
   // Bas de page pour la page 3 vide

@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import type { CategoryInfo } from './pdfTypes';
 import { PDF_COLORS } from './pdfStyles';
+import { drawJustifiedText } from './pdfHelpers';
 
 /**
  * Crée le bandeau de titre de la catégorie
@@ -69,8 +70,7 @@ export function displayExplanationText(
   pdf.setFontSize(9);
   pdf.setFont('helvetica', 'normal');
   
-  const splitText = pdf.splitTextToSize(explanationText, pageWidth - 2 * margin);
-  pdf.text(splitText, margin, yPosition);
+  yPosition = drawJustifiedText(pdf, explanationText, margin, yPosition, pageWidth - 2 * margin, 3.5);
   
-  return yPosition + splitText.length * 3.5; // Espace minimum absolu
+  return yPosition;
 }
