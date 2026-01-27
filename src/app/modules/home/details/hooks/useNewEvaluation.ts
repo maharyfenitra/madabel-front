@@ -1,5 +1,5 @@
 // app/hooks/useNewEvaluation.ts
-import { useGenericMutation } from "@/app/lib/api";
+import { useGenericMutation, useGenericQuery, formatDataFromQuery } from "@/app/lib/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -7,11 +7,18 @@ import { toast } from "sonner";
 export const useNewEvaluation = () => {
   const router = useRouter();
   const { mutateAsync } = useGenericMutation("/evaluations/");
+  const { data: quizzes, isLoading: quizzesLoading } = useGenericQuery(
+    (data: any) => formatDataFromQuery(data),
+    "/quizzes/",
+    "quizzes"
+  );
+
+  console.log("Loaded quizzes for new evaluation:", quizzes);
 
   const [formData, setFormData] = useState<EvaluationParams>({
     ref: "",
     deadline: "",
-    
+    quizId: "",
   });
 
   // 🖊 Met à jour un champ du formulaire
@@ -28,6 +35,12 @@ export const useNewEvaluation = () => {
   // ✅ Soumet la création d'une évaluation
   const handleCreateEvaluation = async () => {
     try {
+      // Valider que le quiz est sélectionné
+      if (!formData.quizId) {
+        toast.error("Veuillez sélectionner un quiz");
+        return;
+      }
+
       const data = await mutateAsync({ ...formData });
 
       console.log(data)
@@ -63,6 +76,8 @@ export const useNewEvaluation = () => {
     handleSubmit,
     handleCreateEvaluation,
     setFormData,
+    quizzes: quizzes?.quizzes || [],
+    quizzesLoading,
   };
 };
 
@@ -70,5 +85,5 @@ export const useNewEvaluation = () => {
 export type EvaluationParams = {
   ref: string;
   deadline: string;
-
+  quizId: number | string;
 };

@@ -79,14 +79,17 @@ export function createQuestionsTable(
   // Déterminer si c'est la page "Développement des autres"
   const isDevelopOthers = category.category === 'DÉVELOPPEMENT DES AUTRES';
   
+  // Trier les questions par order
+  const sortedQuestions = category.questions ? [...category.questions].sort((a, b) => (a.order || 0) - (b.order || 0)) : [];
+  
   // Préparer les données du tableau (vide si pas de questions)
-  const tableData = (!category.questions || category.questions.length === 0) 
+  const tableData = (!sortedQuestions || sortedQuestions.length === 0) 
     ? [[
         'Aucune question pour cette catégorie', 
         '-', '-', '-', '-', '-',
         ...(isDevelopOthers ? ['-'] : [])
       ]]
-    : category.questions.map((question) => {
+    : sortedQuestions.map((question) => {
         const baseData = [
           question.questionText,
           formatScore(question.overallAverage),
@@ -266,7 +269,7 @@ export function createQuestionsTable(
         // Définir les couleurs selon la catégorie
         const categoryColors: Record<string, { bg: [number, number, number], text: [number, number, number] }> = {
           'POSITION': { bg: [244, 67, 54], text: [255, 255, 255] }, // Rouge
-          'PERMISSION': { bg: [255, 193, 7], text: [0, 0, 0] }, // Jaune
+          'PERMISSION': { bg: [255, 193, 7], text: [255, 255, 255] }, // Jaune
           'PRODUCTION': { bg: [76, 175, 80], text: [255, 255, 255] }, // Vert
           'PINNACLE': { bg: [33, 150, 243], text: [255, 255, 255] }, // Bleu
         };

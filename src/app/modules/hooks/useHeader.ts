@@ -87,11 +87,6 @@ export const useHeader = () => {
           href: "/modules/evaluations",
           icon: ActivityIcon,
         },
-        {
-          label: "Rapports",
-          href: "/modules/reports",
-          icon: FileText,
-        },
         { label: "Profile", href: "/modules/profiles", icon: User },
         {
           label: "Se déconnecter",
